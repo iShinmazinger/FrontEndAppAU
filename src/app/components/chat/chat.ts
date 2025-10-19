@@ -100,4 +100,7 @@ export class Chat implements OnInit {
     localStorage.removeItem('token');
     window.location.href = '/login';
   }
+  goToPerfil() {
+    window.location.href = '/perfil'
+  }
 }
