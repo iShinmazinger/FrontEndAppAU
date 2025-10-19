@@ -1,0 +1,16 @@
+<div class="login-container">
+  <h2>Iniciar Sesión</h2>
+
+  <form (ngSubmit)="login()">
+    <input type="email" [(ngModel)]="usuario" name="usuario" placeholder="usuario" required />
+    <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required />
+    <button type="submit">Entrar</button>
+  </form>
+
+  <p *ngIf="message" class="message">{{ message }}</p>
+  
+  <div class="register-link">
+    <p>¿No tienes una cuenta?</p>
+    <button class="register-btn" (click)="goToRegister()">Crear cuenta nueva</button>
+  </div>
+</div>

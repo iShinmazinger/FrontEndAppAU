@@ -1,0 +1,21 @@
+<div class="register-container">
+  <h2>Crear cuenta</h2>
+
+  <form (ngSubmit)="register()">
+    <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Nombre completo" required />
+    <input type="text" [(ngModel)]="usuario" name="usuario" placeholder="Nombre de Usuario" required />
+    <input type="email" [(ngModel)]="email" name="email" placeholder="Correo electrónico" required />
+    <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required />
+    <input type="text" [(ngModel)]="distrito" name="distrito" placeholder="Distrito de Lima" required />
+
+    <button type="submit" [disabled]="!email || !password || !nombre || !distrito">
+        Registrarse
+    </button>
+  </form>
+
+  <p *ngIf="message" class="message">{{ message }}</p>
+
+  <p>¿Ya tienes una cuenta?
+    <a (click)="goToLogin()">Inicia sesión</a>
+  </p>
+</div>
