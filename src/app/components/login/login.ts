@@ -25,6 +25,9 @@ export class Login {
         console.log('Login correcto:', res);
         this.message = 'Inicio de sesión exitoso';
         localStorage.setItem('token', res.token);
+        setTimeout(() => {
+          this.router.navigate(['/chat']);
+        }, 1000);
       },
       error: (err) => {
         console.error('Error en login:', err);
