@@ -5,6 +5,7 @@ import { Register } from './components/register/register';
 import { Chat } from './components/chat/chat';
 import { Perfil } from './components/perfil/perfil';
 import { Crop } from './components/crop/crop';
+import { CropUpdate } from './components/crop-update/crop-update';
 
 export const routes: Routes = [
   { path: '', component: Onboarding },
@@ -13,4 +14,5 @@ export const routes: Routes = [
   { path: 'chat', component: Chat },
   { path: 'perfil', component: Perfil },
   { path: 'cultivos', component: Crop },
+  { path: 'crop-updates/:id', component: CropUpdate },
   { path: '**', redirectTo: '' }];

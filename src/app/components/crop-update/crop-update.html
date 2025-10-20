@@ -1,0 +1,85 @@
+<div class="updates-container">
+  <div class="form-section">
+    <h2>Registrar avance del cultivo #{{ cropId }}</h2>
+
+    <form (ngSubmit)="registrarActualizacion()" class="update-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de Entrada</mat-label>
+        <input matInput [(ngModel)]="newUpdate.status" name="status" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descripcion</mat-label>
+        <textarea matInput rows="3" [(ngModel)]="newUpdate.notes" name="notes"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de diario</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="newUpdate.date" name="date" required>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+     <!-- <mat-form-field appearance="outline">
+        <mat-label>URL de imagen (opcional)</mat-label>
+        <input matInput [(ngModel)]="newUpdate.image_url" name="image_url">
+      </mat-form-field> -->
+
+      <button mat-raised-button color="primary" type="submit">Agregar entrada</button>
+      <button mat-raised-button color="primary" routerLink="/cultivos">Regresar a Mis cultivos</button>
+    </form>
+  </div>
+
+  <div class="cards-section">
+    <h2>Historial de avances</h2>
+    <div class="cards-grid">
+
+      <mat-card *ngFor="let update of updates" class="update-card">
+        <mat-card-title>Estado: {{ update.status }}</mat-card-title>
+
+        <mat-card-content>
+          <ng-container *ngIf="!update.editMode; else editForm">
+            <p><strong>Descripción:</strong> {{ update.notes || 'Sin descripción' }}</p>
+            <p><strong>Fecha:</strong> {{ update.date | date:'short' }}</p>
+            <img *ngIf="update.image_url" [src]="update.image_url" alt="Imagen del avance">
+
+            <div class="card-buttons">
+              <button mat-stroked-button color="primary" (click)="enableEdit(update)">Editar</button>
+              <button mat-stroked-button color="warn" (click)="deleteUpdate(update.id)">Eliminar</button>
+            </div>
+          </ng-container>
+
+          <ng-template #editForm>
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de entrada</mat-label>
+              <input matInput [(ngModel)]="update.status" name="editStatus{{update.id}}">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Descripcion</mat-label>
+              <textarea matInput rows="2" [(ngModel)]="update.notes" name="editNotes{{update.id}}"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Fecha de diario</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="update.date" name="date" required>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+           <!-- <mat-form-field appearance="outline">
+              <mat-label>URL imagen</mat-label>
+              <input matInput [(ngModel)]="update.image_url" name="editImage{{update.id}}">
+            </mat-form-field> -->
+
+            <div class="card-buttons">
+              <button mat-raised-button color="accent" (click)="saveEdit(update)">Guardar</button>
+              <button mat-stroked-button color="warn" (click)="cancelEdit(update)">Cancelar</button>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  </div>
+</div>
