@@ -9,6 +9,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { Onboarding } from './app/components/onboarding/onboarding';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
 
+console.log('Angular está ejecutando main.ts');
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes, withHashLocation()),
