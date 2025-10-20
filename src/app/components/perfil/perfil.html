@@ -1,0 +1,30 @@
+<div class="perfil-container">
+  <div class="perfil-card">
+    <h2>Mi Perfil</h2>
+
+    <div *ngIf="!editMode" class="perfil-info">
+      <p><strong>Nombre:</strong> {{ user.nombre }}</p>
+      <p><strong>Usuario:</strong> {{ user.usuario }}</p>
+      <p><strong>Distrito:</strong> {{ user.distrito }}</p>
+      <button mat-raised-button color="primary" (click)="goToChat()">Volver al chat</button>
+      <button mat-raised-button color="primary" (click)="enableEdit()">Editar perfil</button>
+    </div>
+
+    <form *ngIf="editMode" (ngSubmit)="saveChanges()" class="perfil-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="user.nombre" name="nombre" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Distrito</mat-label>
+        <input matInput [(ngModel)]="user.distrito" name="distrito" required>
+      </mat-form-field>
+
+      <div class="buttons">
+        <button mat-raised-button color="accent" type="submit">Guardar</button>
+        <button mat-stroked-button color="warn" type="button" (click)="cancelEdit()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

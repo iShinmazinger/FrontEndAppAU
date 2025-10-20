@@ -1,0 +1,42 @@
+<div class="chat-container">
+  <div class="chat-box">
+    <div class="top-bar">
+      <div class="logout-btn" (click)="showHistory = !showHistory" title="Ver historial">Historial</div>
+      <div class="logout-btn" (click)="startNewConversation()">Nueva</div>
+      <div class="logout-btn" (click)="goToPerfil()">Mi Perfil</div>
+      <div class="logout-btn" (click)="logout()">Salir</div>
+    </div>
+
+    <h2>Asistente de Agricultura Urbana 🌱</h2>
+
+    <div class="history-panel" *ngIf="showHistory">
+      <h3>Mis conversaciones</h3>
+      <ul>
+        <li *ngFor="let conv of conversations" (click)="openConversation(conv.id)">
+          Conversación #{{ conv.id }} <br />
+          <small>{{ conv.created | date: 'short' }}</small>
+        </li>
+      </ul>
+    </div>
+
+    <div class="messages">
+      <div *ngFor="let msg of messages" [ngClass]="msg.role">
+        <div class="message-bubble">{{ msg.content }}</div>
+      </div>
+      <div *ngIf="loading" class="assistant">
+        <div class="message-bubble">Escribiendo...</div>
+      </div>
+    </div>
+
+    <form (ngSubmit)="sendMessage()" class="input-area">
+      <input
+        type="text"
+        [(ngModel)]="userMessage"
+        name="message"
+        placeholder="Escribe tu mensaje aquí..."
+        required
+      />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+</div>
