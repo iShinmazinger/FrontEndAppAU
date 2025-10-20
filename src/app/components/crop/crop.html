@@ -1,0 +1,92 @@
+<div class="crops-container">
+
+  <div class="form-section">
+    <h2>Registrar nuevo cultivo</h2>
+
+    <form (ngSubmit)="addCrop()" class="cultivo-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre del cultivo</mat-label>
+        <input matInput [(ngModel)]="newCrop.name" name="name" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <input matInput [(ngModel)]="newCrop.tipo" name="tipo">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ubicación</mat-label>
+        <input matInput [(ngModel)]="newCrop.ubicacion" name="ubicacion">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Etapa</mat-label>
+        <input matInput [(ngModel)]="newCrop.etapa" name="etapa">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de inicio</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="newCrop.startdate" name="startdate" required>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Registrar cultivo</button>
+      <button mat-raised-button color="primary" (click)="goToChat()" >Ir al chat</button>
+
+      
+    </form>
+  </div>
+
+  <div class="cards-section">
+  <h2>Cultivos activos: {{ crops.length }}</h2>
+
+  <div class="cards-grid">
+    <mat-card *ngFor="let crop of crops" class="crop-card">
+      <mat-card-title>{{ crop.name }}</mat-card-title>
+      <mat-card-content>
+        <ng-container *ngIf="!crop.editMode; else editForm">
+          <p><strong>Tipo:</strong> {{ crop.tipo || 'N/A' }}</p>
+          <p><strong>Ubicación:</strong> {{ crop.ubicacion || 'N/A' }}</p>
+          <p><strong>Etapa:</strong> {{ crop.etapa || 'N/A' }}</p>
+          <p><strong>Inicio:</strong> {{ crop.startdate | date:'mediumDate' }}</p>
+
+          <div class="card-buttons">
+            <button mat-stroked-button color="primary" (click)="enableEdit(crop)">Editar</button>
+            <button mat-stroked-button color="warn" (click)="deleteCrop(crop.id)">Eliminar</button>
+          </div>
+        </ng-container>
+
+        <ng-template #editForm>
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput [(ngModel)]="crop.name" name="editName{{ crop.id }}">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo</mat-label>
+            <input matInput [(ngModel)]="crop.tipo" name="editTipo{{ crop.id }}">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Etapa</mat-label>
+            <input matInput [(ngModel)]="crop.etapa" name="editEtapa{{ crop.id }}">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Ubicación</mat-label>
+            <input matInput [(ngModel)]="crop.ubicacion" name="editUbicacion{{ crop.id }}">
+          </mat-form-field>
+
+          <div class="card-buttons">
+            <button mat-raised-button color="accent" (click)="saveEdit(crop)">Guardar</button>
+            <button mat-stroked-button color="warn" (click)="cancelEdit(crop)">Cancelar</button>
+          </div>
+        </ng-template>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+</div>
+

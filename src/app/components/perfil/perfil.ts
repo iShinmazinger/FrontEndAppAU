@@ -65,4 +65,8 @@ export class Perfil implements OnInit {
   goToChat() {
     window.location.href = '/chat'
   }
+  logout(): void {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
 }
