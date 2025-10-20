@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-perfil',
@@ -17,7 +18,7 @@ export class Perfil implements OnInit {
   user: any = {};
   editMode = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router:Router) {}
 
   ngOnInit(): void {
     this.getProfile();
@@ -63,7 +64,7 @@ export class Perfil implements OnInit {
     }
   }
   goToChat() {
-    window.location.href = '/chat'
+    this.router.navigate(['/chat']);
   }
   logout(): void {
     localStorage.removeItem('token');

@@ -9,6 +9,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CropService } from '../../services/crop-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-crop',
@@ -21,7 +22,7 @@ export class Crop implements OnInit {
   newCrop = { name: '', tipo: '', ubicacion: '', etapa: '',startdate: new Date()};
   crops: any[] = [];
 
-  constructor(private cultivoService: CropService) {}
+  constructor(private cultivoService: CropService, private router:Router) {}
 
   ngOnInit(): void {
     this.getCrops();
@@ -74,6 +75,6 @@ export class Crop implements OnInit {
   }
 
   goToChat() {
-    window.location.href = '/chat'
+    this.router.navigate(['/chat']);
   }
 }
