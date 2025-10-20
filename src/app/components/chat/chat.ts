@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,7 +31,7 @@ export class Chat implements OnInit {
   showHistory=false
   currentConversationId: number | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router:Router) {}
 
   ngOnInit(): void {
     this.loadHistory();
@@ -101,9 +102,9 @@ export class Chat implements OnInit {
     window.location.href = '/login';
   }
   goToPerfil() {
-    window.location.href = '/perfil'
+    this.router.navigate(['/perfil']);
   }
   goToCultivos() {
-    window.location.href = '/cultivos'
+    this.router.navigate(['/cultivos']);
   }
 }
