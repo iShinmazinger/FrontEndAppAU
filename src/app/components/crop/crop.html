@@ -54,6 +54,7 @@
           <div class="card-buttons">
             <button mat-stroked-button color="primary" (click)="enableEdit(crop)">Editar</button>
             <button mat-stroked-button color="warn" (click)="deleteCrop(crop.id)">Eliminar</button>
+            <button mat-stroked-button color="accent" [routerLink]="['/crop-updates', crop.id]">Diario</button>
           </div>
         </ng-container>
 

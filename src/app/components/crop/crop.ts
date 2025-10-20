@@ -7,11 +7,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CropService } from '../../services/crop-service';
 
 @Component({
   selector: 'app-crop',
-  imports: [ CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule, MatNativeDateModule ],
+  imports: [ CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, RouterModule ],
   templateUrl: './crop.html',
   styleUrl: './crop.css'
 })
