@@ -8,6 +8,7 @@
       <p><strong>Distrito:</strong> {{ user.distrito }}</p>
       <button mat-raised-button color="primary" (click)="goToChat()">Volver al chat</button>
       <button mat-raised-button color="primary" (click)="enableEdit()">Editar perfil</button>
+      <button mat-raised-button color="primary" (click)="logout()">Cerrar sesión</button>
     </div>
 
     <form *ngIf="editMode" (ngSubmit)="saveChanges()" class="perfil-form">

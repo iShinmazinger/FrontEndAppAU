@@ -103,4 +103,7 @@ export class Chat implements OnInit {
   goToPerfil() {
     window.location.href = '/perfil'
   }
+  goToCultivos() {
+    window.location.href = '/cultivos'
+  }
 }
