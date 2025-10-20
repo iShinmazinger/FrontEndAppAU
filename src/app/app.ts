@@ -20,4 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class App {
   protected readonly title = signal('FrontEndAppAU');
+  constructor() {
+    console.log('AppComponent inicializado correctamente');
+  }
 }
