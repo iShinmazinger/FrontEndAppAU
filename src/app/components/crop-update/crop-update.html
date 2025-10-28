@@ -1,85 +1,133 @@
-<div class="updates-container">
-  <div class="form-section">
-    <h2>Registrar avance del cultivo</h2>
+<div class="crops-container">
 
-    <form (ngSubmit)="registrarActualizacion()" class="update-form">
-      <mat-form-field appearance="outline">
-        <mat-label>Tipo de Entrada</mat-label>
-        <input matInput [(ngModel)]="newUpdate.status" name="status" required>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Descripcion</mat-label>
-        <textarea matInput rows="3" [(ngModel)]="newUpdate.notes" name="notes"></textarea>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Fecha de diario</mat-label>
-        <input matInput [matDatepicker]="picker" [(ngModel)]="newUpdate.date" name="date" required>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
-
-     <!-- <mat-form-field appearance="outline">
-        <mat-label>URL de imagen (opcional)</mat-label>
-        <input matInput [(ngModel)]="newUpdate.image_url" name="image_url">
-      </mat-form-field> -->
-
-      <button mat-raised-button color="primary" type="submit">Agregar entrada</button>
-      <button mat-raised-button color="primary" routerLink="/cultivos">Regresar a Mis cultivos</button>
-    </form>
-  </div>
-
-  <div class="cards-section">
-    <h2>Historial de avances</h2>
-    <div class="cards-grid">
-
-      <mat-card *ngFor="let update of updates" class="update-card">
-        <mat-card-title>Estado: {{ update.status }}</mat-card-title>
-
-        <mat-card-content>
-          <ng-container *ngIf="!update.editMode; else editForm">
-            <p><strong>Descripción:</strong> {{ update.notes || 'Sin descripción' }}</p>
-            <p><strong>Fecha:</strong> {{ update.date | date:'short' }}</p>
-            <img *ngIf="update.image_url" [src]="update.image_url" alt="Imagen del avance">
-
-            <div class="card-buttons">
-              <button mat-stroked-button color="primary" (click)="enableEdit(update)">Editar</button>
-              <button mat-stroked-button color="warn" (click)="deleteUpdate(update.id)">Eliminar</button>
-            </div>
-          </ng-container>
-
-          <ng-template #editForm>
-            <mat-form-field appearance="outline">
-              <mat-label>Tipo de entrada</mat-label>
-              <input matInput [(ngModel)]="update.status" name="editStatus{{update.id}}">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Descripcion</mat-label>
-              <textarea matInput rows="2" [(ngModel)]="update.notes" name="editNotes{{update.id}}"></textarea>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Fecha de diario</mat-label>
-                <input matInput [matDatepicker]="picker" [(ngModel)]="update.date" name="date" required>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-
-           <!-- <mat-form-field appearance="outline">
-              <mat-label>URL imagen</mat-label>
-              <input matInput [(ngModel)]="update.image_url" name="editImage{{update.id}}">
-            </mat-form-field> -->
-
-            <div class="card-buttons">
-              <button mat-raised-button color="accent" (click)="saveEdit(update)">Guardar</button>
-              <button mat-stroked-button color="warn" (click)="cancelEdit(update)">Cancelar</button>
-            </div>
-          </ng-template>
-        </mat-card-content>
-      </mat-card>
-
+    <header class="crop-header">
+        <h1 class="title">
+            {{ showForm === 'edit' ? 'Modificar seguimiento' : 'Diario' }}
+        </h1>
+    </header>
+    
+    <div class="buttons-diary-crop" *ngIf="showForm === 'list'">
+        <button type="button" class="action-button primary-btn" (click)="showForm = 'register'">
+            Nuevo registro
+        </button>
+        <button type="button" class="action-button secondary-grey-btn" routerLink="/cultivos">
+            Volver
+        </button>
     </div>
-  </div>
+
+    <div *ngIf="showForm === 'register' || showForm === 'edit'" class="form-section full-screen-form-diary">
+        
+        <form class="cultivo-form-diary" #updateForm="ngForm" (ngSubmit)="handleSubmit()"> 
+            
+            <ng-container *ngIf="showForm === 'register'; else editContext">
+                <input type="hidden" name="crop_id" [(ngModel)]="newUpdate.crop_id">
+                <input type="hidden" name="id" [(ngModel)]="newUpdate.id">
+
+                <div class="input-group">
+                    <label for="status-select-new">¿Qué sucedió hoy?*</label>
+                    <select id="status-select-new" class="custom-input custom-select" 
+                            [(ngModel)]="newUpdate.status" name="status" required>
+                        <option value="" disabled selected>Selecciona un tipo de evento</option>
+                        <option *ngFor="let option of entryOptions" [value]="option">{{ option }}</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="notes-input-new">Notas/Observaciones</label>
+                    <textarea id="notes-input-new" class="custom-input custom-textarea-diary" rows="4" 
+                              [(ngModel)]="newUpdate.notes" name="notes"
+                              placeholder="Registra observaciones, cambios, aplicaciones de fertilizantes, problemas, etc."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="date-input-new">Fecha*</label>
+                    <input id="date-input-new" type="date" class="custom-input" 
+                           [ngModel]="newUpdate.date | date:'yyyy-MM-dd'" 
+                           (ngModelChange)="onDateChange($event, 'new')"
+                           name="date" required>
+                </div>
+            </ng-container>
+
+            <ng-template #editContext>
+                <input type="hidden" name="crop_id" [(ngModel)]="updateToEdit!.crop_id">
+                <input type="hidden" name="id" [(ngModel)]="updateToEdit!.id">
+
+                <div class="input-group">
+                    <label for="status-select-edit">¿Qué sucedió hoy?*</label>
+                    <select id="status-select-edit" class="custom-input custom-select" 
+                            [(ngModel)]="updateToEdit!.status" name="statusEdit" required>
+                        <option *ngFor="let option of entryOptions" [value]="option">{{ option }}</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="notes-input-edit">Notas/Observaciones</label>
+                    <textarea id="notes-input-edit" class="custom-input custom-textarea-diary" rows="4" 
+                              [(ngModel)]="updateToEdit!.notes" name="notesEdit"
+                              placeholder="Registra observaciones, cambios, aplicaciones de fertilizantes, problemas, etc."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="date-input-edit">Fecha*</label>
+                    <input id="date-input-edit" type="date" class="custom-input" 
+                           [ngModel]="updateToEdit!.date | date:'yyyy-MM-dd'" 
+                           (ngModelChange)="onDateChange($event, 'edit')"
+                           name="dateEdit" required>
+                </div>
+            </ng-template>
+
+            <div class="buttons-diary-register">
+                <button type="submit" class="action-button primary-btn-diary" [disabled]="!updateForm.valid">
+                    {{ showForm === 'edit' ? 'Modificar' : 'Agregar' }}
+                </button>
+                <button type="button" class="action-button secondary-grey-btn-diary" (click)="cancelForm()">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <div *ngIf="showForm === 'list'" class="cards-section">
+        <div *ngFor="let update of updates">
+            <div class="card-diary-crop">
+                <p class="date-diary-crop">{{ update.date | date:'dd/MM/yyyy' }}</p>
+                
+                <div class="tag-status">
+                    <span class="status-text">{{ update.status }}</span>
+                </div>
+                
+                <p class="description-diary-crop">{{ update.notes || 'Sin descripción' }}</p>
+
+                <div class="update-actions">
+                    <button class="icon-action-btn edit-icon" (click)="enableEdit(update)">
+                        <iconify-icon icon="fe:edit" width="20" height="20" class="edit-icon-color"></iconify-icon>
+                    </button>
+                    <button class="icon-action-btn delete-icon" (click)="deleteUpdate(update.id)">
+                        <iconify-icon icon="mdi:trash-outline" width="23" height="23" class="delete-icon-color"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<nav class="chat-nav">
+  <a (click)="goToInicio()" class="nav-item"> 
+    <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+    <span>Inicio</span>
+  </a>
+  <a routerLink="/cultivos" class="nav-item active">
+    <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+    <span>Cultivo</span>
+  </a>
+  <a (click)="goToAsistente()" class="nav-item">
+    <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+    <span>Asistente</span>
+  </a>
+  <a (click)="goToPerfil()" class="nav-item">
+    <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+    <span>Perfil</span>
+  </a>
+</nav>

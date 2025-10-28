@@ -1,0 +1,49 @@
+<div class="home-container">
+
+  <div class="home-header">
+    <h2 class="welcome-text">Hola {{ user.nombre || 'Usuario' }}</h2>
+    <button class="logout-btn" (click)="logout()">
+      <iconify-icon icon="material-symbols:logout" width="24" height="24"></iconify-icon>
+    </button>
+  </div>
+
+  <div class="assistant-card-bg">
+    <div class="assistant-card-content">
+        <div class="plant-icon-group">
+            <img src="https://i.postimg.cc/Prg366X6/image.png" alt="Plantita" width="70" height="70" style="object-fit: contain;" />
+        </div>
+      <h1 class="assistant-title">¡Hablemos de tus cultivos!</h1>
+      <p class="assistant-subtitle">Tu asistente está listo</p>
+      <button class="chat-button primary-btn" (click)="goToAsistente()">Ir a mi asistente</button>
+    </div>
+  </div>
+
+  <div class="card-active-crop">
+    <div class="frame-content">
+      <p class="card-title">Cultivos Activos</p>
+      <h2 class="crop-count green-text">{{ cropsCrecimiento.length }}</h2>
+      <p class="card-subtitle">Cultivos en etapa de Crecimiento</p>
+    </div>
+    <button class="manage-crops-button secondary-btn" (click)="goToCultivos()">Gestionar cultivos</button>
+  </div>
+
+</div>
+
+<nav class="chat-nav">
+  <a (click)="goToInicio()" class="nav-item active">
+    <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+    <span>Inicio</span>
+  </a>
+  <a (click)="goToCultivos()" class="nav-item">
+    <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+    <span>Cultivos</span>
+  </a>
+  <a (click)="goToAsistente()" class="nav-item">
+    <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+    <span>Asistente</span>
+  </a>
+  <a (click)="goToPerfil()" class="nav-item">
+    <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+    <span>Perfil</span>
+  </a>
+</nav>
