@@ -1,43 +1,85 @@
-<div class="chat-container">
-  <div class="chat-box">
-    <div class="top-bar">
-      <div class="logout-btn" (click)="showHistory = !showHistory" title="Ver historial">Historial</div>
-      <div class="logout-btn" (click)="startNewConversation()">Nueva</div>
-      <div class="logout-btn" (click)="goToCultivos()">Mis cultivos</div>
-      <div class="logout-btn" (click)="goToPerfil()">Mi Perfil</div>
-      <div class="logout-btn" (click)="logout()">Salir</div>
-    </div>
-
-    <h2>Asistente de Agricultura Urbana 🌱</h2>
-
-    <div class="history-panel" *ngIf="showHistory">
-      <h3>Mis conversaciones</h3>
-      <ul>
-        <li *ngFor="let conv of conversations" (click)="openConversation(conv.id)">
-          Conversación #{{ conv.id }} <br />
-          <small>{{ conv.created | date: 'short' }}</small>
-        </li>
-      </ul>
-    </div>
-
-    <div class="messages">
-      <div *ngFor="let msg of messages" [ngClass]="msg.role">
-        <div class="message-bubble">{{ msg.content }}</div>
+<div class="chat-wrapper">
+  <header class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-bot-icon">
+        <iconify-icon icon="carbon:chat-bot" width="26" height="26"></iconify-icon>
       </div>
-      <div *ngIf="loading" class="assistant">
-        <div class="message-bubble">Escribiendo...</div>
+      <div class="chat-bot-info">
+        <span class="bot-name">Growia</span>
+        <div class="bot-status">
+          <span class="status-dot"></span>
+          <span class="status-text">En línea</span>
+        </div>
       </div>
     </div>
 
-    <form (ngSubmit)="sendMessage()" class="input-area">
-      <input
-        type="text"
-        [(ngModel)]="userMessage"
-        name="message"
-        placeholder="Escribe tu mensaje aquí..."
-        required
-      />
-      <button type="submit">Enviar</button>
-    </form>
+    <div class="chat-header-actions">
+      <button class="icon-btn" (click)="showHistory = !showHistory" title="Ver historial">
+        <iconify-icon icon="material-symbols:history-rounded" width="26" height="26"></iconify-icon>
+      </button>
+
+      <button class="icon-btn" (click)="startNewConversation()" title="Nuevo chat">
+        <iconify-icon
+          icon="material-symbols:add-circle-outline-rounded" width="26" height="26"
+        ></iconify-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="history-panel" *ngIf="showHistory">
+    <h3>Mis conversaciones</h3>
+    <ul>
+      <li *ngFor="let conv of conversations" (click)="openConversation(conv.id)">
+        Conversación #{{ conv.id }} <br />
+        <small>{{ conv.created | date : 'short' }}</small>
+      </li>
+    </ul>
   </div>
+
+  <main class="chat-body">
+    <div *ngFor="let msg of messages" [ngClass]="msg.role">
+      <div class="message-bubble">{{ msg.content }}</div>
+    </div>
+
+    <div *ngIf="loading" class="assistant">
+      <div class="message-bubble">Escribiendo...</div>
+    </div>
+  </main>
+
+  <form (ngSubmit)="sendMessage()" class="chat-input">
+    <input
+      type="text"
+      [(ngModel)]="userMessage"
+      name="message"
+      placeholder="Escribe tu mensaje aquí..."
+      required
+    />
+    <button type="submit" title="Enviar">
+      <iconify-icon
+        icon="material-symbols:send-outline-rounded" width="24" height="24"
+      ></iconify-icon>
+    </button>
+  </form>
+
+  <nav class="chat-nav">
+    <a (click)="goToInicio()" class="nav-item">
+      <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+      <span>Cultivos</span>
+    </a>
+
+    <a (click)="goToCultivos()" class="nav-item">
+      <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+      <span>Cultivos</span>
+    </a>
+
+    <a (click)="goToAsistente()" class="nav-item active">
+      <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+      <span>Asistente</span>
+    </a>
+
+    <a (click)="goToPerfil()" class="nav-item">
+      <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+      <span>Perfil</span>
+    </a>
+  </nav>
 </div>

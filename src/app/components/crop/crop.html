@@ -1,93 +1,166 @@
 <div class="crops-container">
+    
+    <header class="crop-header" *ngIf="showForm === 'empty' || showForm === 'list'">
+        <h1 class="title">Mis cultivos</h1>
+        <p class="subtitle">Aquí puedes registrar los cultivos que inicies en tu casa</p>
+    </header>
 
-  <div class="form-section">
-    <h2>Registrar nuevo cultivo</h2>
+    <div *ngIf="showForm === 'empty'" class="empty-state">
+        <div class="add-crop-card" (click)="startRegister()">
+            <div class="add-crop-icon">
+                <span>＋</span>
+            </div>
+            <p class="add-crop-title">Agregar nuevo cultivo</p>
+            <p class="add-crop-subtitle">Empieza a cultivar desde aquí</p>
+        </div>
+    </div>
 
-    <form (ngSubmit)="addCrop()" class="cultivo-form">
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre del cultivo</mat-label>
-        <input matInput [(ngModel)]="newCrop.name" name="name" required>
-      </mat-form-field>
+    <div *ngIf="showForm === 'register'" class="form-section register-card full-screen-form">
+        <h2 class="form-title green-title">Registrar cultivo</h2>
+        <hr class="title-separator">
 
-      <mat-form-field appearance="outline">
-        <mat-label>Tipo</mat-label>
-        <input matInput [(ngModel)]="newCrop.tipo" name="tipo">
-      </mat-form-field>
+        <div *ngIf="validationError" class="error-box">
+            {{ validationError }}
+        </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Ubicación</mat-label>
-        <input matInput [(ngModel)]="newCrop.ubicacion" name="ubicacion">
-      </mat-form-field>
+        <form (ngSubmit)="addCrop()" class="cultivo-form">
+            
+            <label for="name">Nombre del cultivo*</label>
+            <input id="name" type="text" [(ngModel)]="newCrop.name" name="name" required class="custom-input">
 
-      <mat-form-field appearance="outline">
-        <mat-label>Etapa</mat-label>
-        <input matInput [(ngModel)]="newCrop.etapa" name="etapa">
-      </mat-form-field>
+            <label for="tipo">Tipo de cultivo*</label>
+            <select id="tipo" [(ngModel)]="newCrop.tipo" name="tipo" required class="custom-input custom-select">
+                <option value="" disabled selected>Selecciona el tipo de cultivo</option>
+                <option *ngFor="let tipo of tiposDeCultivo" [value]="tipo">{{ tipo }}</option>
+            </select>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Fecha de inicio</mat-label>
-        <input matInput [matDatepicker]="picker" [(ngModel)]="newCrop.startdate" name="startdate" required>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+            <label for="ubicacion">Ubicación*</label>
+            <select id="ubicacion" [(ngModel)]="newCrop.ubicacion" name="ubicacion" required class="custom-input custom-select">
+                <option value="" disabled selected>Selecciona la ubicación</option>
+                <option *ngFor="let ubi of ubicacionesUrbanas" [value]="ubi">{{ ubi }}</option>
+            </select>
 
-      <button mat-raised-button color="primary" type="submit">Registrar cultivo</button>
-      <button mat-raised-button color="primary" (click)="goToChat()" >Ir al chat</button>
+            <label for="etapa">Etapa de crecimiento*</label>
+            <select id="etapa" [(ngModel)]="newCrop.etapa" name="etapa" required class="custom-input custom-select">
+                <option value="" disabled selected>Selecciona la etapa</option>
+                <option value="Semilla">Semilla</option>
+                <option value="Crecimiento">Crecimiento</option>
+                <option value="Floración">Floración</option>
+                <option value="Cosecha">Cosecha</option>
+            </select>
 
-      
-    </form>
-  </div>
+            <label for="startdate">Fecha de inicio*</label>
+            <input id="startdate" type="date" 
+                [ngModel]="newCrop.startdate | date:'yyyy-MM-dd'" 
+                (ngModelChange)="onDateChange($event, 'new')"
+                name="startdate" required class="custom-input">
+            
+            <div class="buttons-edit">
+                <button type="submit" class="action-button primary-btn">Registrar</button>
+                <button type="button" (click)="cancelForm()" class="action-button secondary-grey-btn">Cancelar</button>
+            </div>
+        </form>
+    </div>
 
-  <div class="cards-section">
-  <h2>Cultivos activos: {{ crops.length }}</h2>
 
-  <div class="cards-grid">
-    <mat-card *ngFor="let crop of crops" class="crop-card">
-      <mat-card-title>{{ crop.name }}</mat-card-title>
-      <mat-card-content>
-        <ng-container *ngIf="!crop.editMode; else editForm">
-          <p><strong>Tipo:</strong> {{ crop.tipo || 'N/A' }}</p>
-          <p><strong>Ubicación:</strong> {{ crop.ubicacion || 'N/A' }}</p>
-          <p><strong>Etapa:</strong> {{ crop.etapa || 'N/A' }}</p>
-          <p><strong>Inicio:</strong> {{ crop.startdate | date:'mediumDate' }}</p>
+    <div *ngIf="showForm === 'edit' && cropToEdit" class="form-section register-card full-screen-form">
+        <h2 class="form-title green-title">Editar cultivo</h2>
+        <hr class="title-separator">
 
-          <div class="card-buttons">
-            <button mat-stroked-button color="primary" (click)="enableEdit(crop)">Editar</button>
-            <button mat-stroked-button color="warn" (click)="deleteCrop(crop.id)">Eliminar</button>
-            <button mat-stroked-button color="accent" [routerLink]="['/crop-updates', crop.id]">Diario</button>
-          </div>
-        </ng-container>
+        <div *ngIf="validationError" class="error-box">
+            {{ validationError }}
+        </div>
 
-        <ng-template #editForm>
-          <mat-form-field appearance="outline">
-            <mat-label>Nombre</mat-label>
-            <input matInput [(ngModel)]="crop.name" name="editName{{ crop.id }}">
-          </mat-form-field>
+        <form (ngSubmit)="saveEdit()" class="cultivo-form">
+            
+            <label for="editName">Nombre del cultivo*</label>
+            <input id="editName" type="text" [(ngModel)]="cropToEdit.name" name="editName" required class="custom-input">
 
-          <mat-form-field appearance="outline">
-            <mat-label>Tipo</mat-label>
-            <input matInput [(ngModel)]="crop.tipo" name="editTipo{{ crop.id }}">
-          </mat-form-field>
+            <label for="editTipo">Tipo de cultivo*</label>
+            <select id="editTipo" [(ngModel)]="cropToEdit.tipo" name="editTipo" required class="custom-input custom-select">
+                <option *ngFor="let tipo of tiposDeCultivo" [value]="tipo">{{ tipo }}</option>
+            </select>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Etapa</mat-label>
-            <input matInput [(ngModel)]="crop.etapa" name="editEtapa{{ crop.id }}">
-          </mat-form-field>
+            <label for="editUbicacion">Ubicación*</label>
+            <select id="editUbicacion" [(ngModel)]="cropToEdit.ubicacion" name="editUbicacion" required class="custom-input custom-select">
+                <option *ngFor="let ubi of ubicacionesUrbanas" [value]="ubi">{{ ubi }}</option>
+            </select>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Ubicación</mat-label>
-            <input matInput [(ngModel)]="crop.ubicacion" name="editUbicacion{{ crop.id }}">
-          </mat-form-field>
+            <label for="editEtapa">Etapa de crecimiento*</label>
+            <select id="editEtapa" [(ngModel)]="cropToEdit.etapa" name="editEtapa" required class="custom-input custom-select">
+                <option value="Semilla">Semilla</option>
+                <option value="Crecimiento">Crecimiento</option>
+                <option value="Floración">Floración</option>
+                <option value="Cosecha">Cosecha</option>
+            </select>
+            
+            <div class="edit-date-display">
+                <strong>Fecha de inicio:</strong> {{ cropToEdit.startdate | date:'dd/MM/yyyy' }}
+            </div>
 
-          <div class="card-buttons">
-            <button mat-raised-button color="accent" (click)="saveEdit(crop)">Guardar</button>
-            <button mat-stroked-button color="warn" (click)="cancelEdit(crop)">Cancelar</button>
-          </div>
-        </ng-template>
-      </mat-card-content>
-    </mat-card>
-  </div>
+            <div class="buttons-edit">
+                <button type="submit" class="action-button primary-btn">Editar</button>
+                <button type="button" (click)="cancelForm()" class="action-button secondary-grey-btn">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <div *ngIf="showForm === 'list'" class="cards-section">
+        <button class="add-new-crop-btn action-button primary-btn" (click)="startRegister()">
+            <iconify-icon icon="ic:baseline-add-circle-outline" width="20" height="20" style="margin-right: 5px;"></iconify-icon>
+            Registrar Nuevo Cultivo
+        </button>
+
+        <div *ngFor="let crop of crops" class="crop-card-container">
+            <div class="crop-card">
+                
+                <div class="card-header">
+                    <h3 class="crop-name">{{ crop.name }}</h3>
+                    <div class="header-actions">
+                        <button class="icon-action-btn edit-icon" (click)="enableEdit(crop)">
+                            <iconify-icon icon="fe:edit" width="20" height="20"></iconify-icon>
+                        </button>
+                        <button class="icon-action-btn delete-icon" (click)="deleteCrop(crop.id)">
+                            <iconify-icon icon="mdi:trash-outline" width="22" height="22"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-details">
+                    
+                    <p class="detail-line">Iniciado</p>
+                    <p class="detail-date">{{ crop.startdate | date:'dd/MM/yyyy' }}</p>
+                    
+                    <div class="detail-separator"></div>
+
+                    <p class="detail-line full-row">Tipo: {{ crop.tipo || 'N/A' }}</p>
+                    <p class="detail-line full-row">Ubicación: {{ crop.ubicacion || 'N/A' }}</p>
+                    <p class="detail-line full-row">Etapa de cultivo: {{ crop.etapa || 'N/A' }}</p>
+                </div>
+                
+                <button class="diario-btn primary-btn" (click)="goToCultivoDiario(crop.id)"> Diario </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-</div>
 
+<nav class="chat-nav">
+    <a (click)="goToInicio()" class="nav-item"> 
+        <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+        <span>Inicio</span>
+    </a>
+    <a class="nav-item active">
+        <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+        <span>Cultivos</span>
+    </a>
+    <a (click)="goToAsistente()" class="nav-item">
+        <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+        <span>Asistente</span>
+    </a>
+    <a (click)="goToPerfil()" class="nav-item">
+        <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+        <span>Perfil</span>
+    </a>
+</nav>

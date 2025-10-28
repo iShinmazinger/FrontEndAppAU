@@ -1,80 +1,222 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { CropService } from '../../services/crop-service';
-import { Router } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CropService } from '../../services/crop-service'; 
+import { HttpErrorResponse, HttpClientModule } from '@angular/common/http';
+
+interface CropData {
+  id: number;
+  name: string;
+  tipo: string;
+  ubicacion: string;
+  etapa: string;
+  startdate: Date; 
+}
 
 @Component({
   selector: 'app-crop',
-  imports: [ CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, RouterModule ],
+  standalone: true,
+  imports: [ 
+    CommonModule, 
+    FormsModule, 
+    RouterModule,
+    HttpClientModule 
+  ],
   templateUrl: './crop.html',
-  styleUrl: './crop.css'
+  styleUrl: './crop.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [DatePipe] 
 })
 export class Crop implements OnInit {
+  
+  newCrop: CropData = { id: 0, name: '', tipo: '', ubicacion: '', etapa: '', startdate: new Date() };
+  crops: CropData[] = [];
+  showForm: 'register' | 'edit' | 'list' | 'empty' = 'empty'; 
+  cropToEdit: CropData | null = null;
+  
+  validationError: string = ''; 
 
-  newCrop = { name: '', tipo: '', ubicacion: '', etapa: '',startdate: new Date()};
-  crops: any[] = [];
+  tiposDeCultivo: string[] = [
+    'Hortalizas de hoja',
+    'Hortalizas de raíz',
+    'Hierbas aromáticas',
+    'Frutales pequeños',
+    'Legumbres',
+    'Tubérculos'
+  ];
 
-  constructor(private cultivoService: CropService, private router:Router) {}
+  ubicacionesUrbanas: string[] = [
+    'Balcón/Terraza',
+    'Patio/Jardín trasero',
+    'Azotea',
+    'Macetas pequeñas',
+    'Huerto vertical interior',
+    'Invernadero pequeño',
+    'Recipientes reciclados'
+  ];
+
+  constructor(private cropService: CropService, private router:Router, private datePipe: DatePipe) {}
 
   ngOnInit(): void {
     this.getCrops();
   }
 
+  
+  private validateCrop(crop: CropData): boolean {
+    this.validationError = '';
+
+    if (!crop.name || crop.name.trim() === '') {
+      this.validationError = 'El campo Nombre del cultivo es obligatorio.';
+      return false;
+    }
+    if (!crop.tipo || crop.tipo.trim() === '') {
+      this.validationError = 'Debe seleccionar un Tipo de cultivo.';
+      return false;
+    }
+    if (!crop.ubicacion || crop.ubicacion.trim() === '') {
+      this.validationError = 'Debe seleccionar una Ubicación.';
+      return false;
+    }
+    if (!crop.etapa || crop.etapa.trim() === '') {
+      this.validationError = 'Debe seleccionar una Etapa de crecimiento.';
+      return false;
+    }
+    if (!crop.startdate) {
+      this.validationError = 'Debe seleccionar una Fecha de inicio.';
+      return false;
+    }
+    return true;
+  }
+
   getCrops(): void {
-    this.cultivoService.obtenerCultivos().subscribe({
-      next: (res) => this.crops = res,
-      error: (err) => console.error('Error al obtener cultivos:', err)
+    this.cropService.obtenerCultivos().subscribe({
+      next: (data) => {
+        this.crops = data.map(crop => ({
+          ...crop,
+          startdate: new Date(crop.startdate) 
+        }));
+        this.showForm = this.crops.length > 0 ? 'list' : 'empty';
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al obtener cultivos:', err);
+        this.showForm = 'empty'; 
+      }
     });
   }
 
+  
   addCrop(): void {
-    if (!this.newCrop.name.trim()) return;
-    this.newCrop.startdate = new Date(this.newCrop.startdate);
-    this.cultivoService.registrarCultivo(this.newCrop).subscribe({
-      next: () => {
-        this.newCrop = { name: '', tipo: '', ubicacion: '', etapa: '',startdate: new Date() };
-        this.getCrops();
-      },
-      error: (err) => console.error('Error al registrar cultivo:', err)
-    });
-  }
-  enableEdit(crop: any): void {
-    crop.editMode = true;
-  }
+    
+    if (!this.validateCrop(this.newCrop)) {
+      return; 
+    }
 
-  cancelEdit(crop: any): void {
-    crop.editMode = false;
-    this.getCrops();
-  }
+    const payload = {
+      name: this.newCrop.name,
+      tipo: this.newCrop.tipo,
+      ubicacion: this.newCrop.ubicacion,
+      etapa: this.newCrop.etapa,
+      startdate: this.newCrop.startdate.toISOString().split('T')[0] 
+    };
 
-  saveEdit(crop: any): void {
-    this.cultivoService.actualizarCultivo(crop.id, crop).subscribe({
+    this.cropService.registrarCultivo(payload as any).subscribe({
       next: () => {
-        crop.editMode = false;
-        this.getCrops();
+        console.log('Cultivo registrado con éxito');
+        this.getCrops(); 
+        this.cancelForm();
       },
-      error: (err) => console.error('Error al actualizar cultivo:', err)
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al registrar cultivo:', err);
+        this.validationError = 'Error al registrar. Intente de nuevo.';
+      }
     });
   }
 
-  deleteCrop(id: number): void {
-    if (confirm('¿Seguro que deseas eliminar este cultivo?')) {
-      this.cultivoService.eliminarCultivo(id).subscribe({
-        next: () => this.getCrops(),
-        error: (err) => console.error('Error al eliminar cultivo:', err)
+  
+  saveEdit(): void {
+    if (this.cropToEdit) {
+      
+      if (!this.validateCrop(this.cropToEdit)) {
+        return; 
+      }
+      
+      const { id, ...payload } = this.cropToEdit;
+      
+      (payload as any).startdate = this.cropToEdit.startdate.toISOString().split('T')[0];
+
+      this.cropService.actualizarCultivo(id, payload).subscribe({
+        next: () => {
+          console.log('Cultivo actualizado con éxito');
+          this.getCrops();
+          this.cancelForm();
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Error al actualizar cultivo:', err);
+          this.validationError = 'Error al actualizar. Intente de nuevo.';
+        }
       });
     }
   }
 
-  goToChat() {
-    this.router.navigate(['/chat']);
+  deleteCrop(id: number): void {
+    if (!confirm('¿Estás seguro de que quieres eliminar este cultivo?')) {
+      return;
+    }
+
+    this.cropService.eliminarCultivo(id).subscribe({
+      next: () => {
+        console.log('Cultivo eliminado con éxito');
+        this.getCrops();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al eliminar cultivo:', err);
+      }
+    });
+  }
+
+  onDateChange(event: string | null, target: 'new' | 'edit'): void {
+    const newDate = event ? new Date(event) : new Date();
+
+    if (target === 'new') {
+      this.newCrop.startdate = newDate;
+    } else if (target === 'edit' && this.cropToEdit) {
+      this.cropToEdit.startdate = newDate;
+    }
+    
+    this.validationError = ''; 
+  }
+
+  startRegister(): void {
+    this.newCrop = { id: 0, name: '', tipo: '', ubicacion: '', etapa: '', startdate: new Date() };
+    this.validationError = ''; 
+    this.showForm = 'register';
+  }
+
+  cancelForm(): void {
+    this.showForm = this.crops.length > 0 ? 'list' : 'empty';
+    this.cropToEdit = null;
+    this.validationError = ''; 
+  }
+
+  enableEdit(crop: CropData): void {
+    this.cropToEdit = {...crop}; 
+    this.validationError = ''; 
+    this.showForm = 'edit';
+  }
+
+  goToCultivoDiario(id: number): void {
+    this.router.navigate(['/crop-updates', id]); 
+  }
+  
+  goToInicio(): void {
+    this.router.navigate(['/home']); 
+  }
+  goToAsistente(): void { 
+    this.router.navigate(['/chat']); 
+  }
+  goToPerfil(): void { 
+    this.router.navigate(['/perfil']); 
   }
 }
