@@ -33,4 +33,10 @@ export class CropService {
   actualizarCultivo(id: number, datos: any) {
   return this.http.put(`${this.apiUrl}/${id}`, datos, { headers: this.getAuthHeaders() });
 }
+
+getCropsCrecimiento(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/crecimiento`, {
+    headers: this.getAuthHeaders()
+  });
+}
 }

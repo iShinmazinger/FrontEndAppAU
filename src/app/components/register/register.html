@@ -1,21 +1,42 @@
-<div class="register-container">
-  <h2>Crear cuenta</h2>
+<div class="register-wrapper">
+  <div class="register-card">
+    <h2>Crear cuenta</h2>
 
-  <form (ngSubmit)="register()">
-    <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="Nombre completo" required />
-    <input type="text" [(ngModel)]="usuario" name="usuario" placeholder="Nombre de Usuario" required />
-    <input type="email" [(ngModel)]="email" name="email" placeholder="Correo electrónico" required />
-    <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required />
-    <input type="text" [(ngModel)]="distrito" name="distrito" placeholder="Distrito de Lima" required />
+    <form #registerForm="ngForm" (ngSubmit)="register(registerForm)">
+      <!-- Nombre -->
+      <input type="text" name="nombre" [(ngModel)]="nombre" placeholder="Nombre" required />
+      <small *ngIf="submitted && !nombre" class="error-text">Ingresa tu nombre.</small>
 
-    <button type="submit" [disabled]="!email || !password || !nombre || !distrito">
-        Registrarse
-    </button>
-  </form>
+      <!-- Usuario -->
+      <input type="text" name="usuario" [(ngModel)]="usuario" placeholder="Nombre de usuario" required />
+      <small *ngIf="submitted && !usuario" class="error-text">Ingresa un nombre de usuario.</small>
 
-  <p *ngIf="message" class="message">{{ message }}</p>
+      <!-- Correo -->
+      <input type="email" name="email" [(ngModel)]="email" placeholder="Correo electrónico" required email />
+      <small *ngIf="submitted && !isValidEmail(email)" class="error-text">Ingresa un correo válido.</small>
 
-  <p>¿Ya tienes una cuenta?
-    <a (click)="goToLogin()">Inicia sesión</a>
-  </p>
+      <!-- Contraseña -->
+      <input type="password" name="password" [(ngModel)]="password" placeholder="Contraseña" required minlength="6" />
+      <small *ngIf="submitted && !isValidPassword(password)" class="error-text">
+        La contraseña debe tener al menos 6 caracteres.
+      </small>
+
+      <!-- Distrito (Select) -->
+      <select [(ngModel)]="distrito" name="distrito" required>
+        <option value="" disabled selected>Selecciona tu distrito</option>
+        <option *ngFor="let d of distritos" [value]="d">{{ d }}</option>
+      </select>
+      <small *ngIf="submitted && !distrito" class="error-text">Selecciona un distrito.</small>
+
+      <!-- Botón -->
+      <button type="submit">Registrarse</button>
+    </form>
+
+    <p *ngIf="message" class="message">{{ message }}</p>
+
+    <p class="redirect-text">
+      ¿Ya tienes una cuenta?
+      <a (click)="goToLogin()">Inicia sesión</a>
+    </p>
+  </div>
 </div>

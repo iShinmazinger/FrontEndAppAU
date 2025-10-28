@@ -6,6 +6,7 @@ import { Chat } from './components/chat/chat';
 import { Perfil } from './components/perfil/perfil';
 import { Crop } from './components/crop/crop';
 import { CropUpdate } from './components/crop-update/crop-update';
+import { Home } from './components/home/home';
 
 export const routes: Routes = [
   { path: '', component: Onboarding },
@@ -13,6 +14,8 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'chat', component: Chat },
   { path: 'perfil', component: Perfil },
+  { path: 'home', component: Home },
   { path: 'cultivos', component: Crop },
   { path: 'crop-updates/:id', component: CropUpdate },
-  { path: '**', redirectTo: '' }];
+  { path: '**', redirectTo: '' }
+];

@@ -1,58 +1,105 @@
-.register-container {
+.register-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #a8e063, #56ab2f);
-  color: #fff;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-light);
+  padding: 1.5rem;
+}
+
+.register-card {
+  background-color: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: var(--box-shadow-medium);
+  max-width: 400px;
+  width: 100%;
   text-align: center;
+}
+
+h2 {
+  color: var(--text-dark);
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+  font-size: 1.8rem;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  width: 300px;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 30px;
-  border-radius: 15px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  gap: 1rem;
 }
 
-input {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
+input,
+select {
+  padding: 0.9rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   font-size: 1rem;
+  color: var(--text-dark);
+  background-color: #fafafa;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #ccc;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 button {
-  background-color: #fff;
-  color: #185a9d;
+  background-color: var(--negro);
+  color: #fff;
   border: none;
-  padding: 10px;
-  font-size: 1.1rem;
-  border-radius: 25px;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: 600;
 }
 
 button:hover {
-  transform: scale(1.05);
-  background-color: #e8f5e9;
+  background-color: var(--btn-hover);
+  transform: translateY(-2px);
+}
+
+.error-text {
+  color: #d32f2f;
+  font-size: 0.85rem;
+  text-align: left;
+  margin-top: -5px;
+  margin-bottom: -5px;
 }
 
 .message {
-  margin-top: 15px;
-  font-weight: bold;
-  color: #ffe082;
+  margin-top: 1rem;
+  font-weight: 500;
+  color: var(--verde);
 }
 
-a {
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
+.redirect-text {
+  margin-top: 1.5rem;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.redirect-text a {
+  color: var(--negro);
+  font-weight: 600;
   text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
 }

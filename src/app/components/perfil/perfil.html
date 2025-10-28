@@ -1,31 +1,110 @@
-<div class="perfil-container">
-  <div class="perfil-card">
-    <h2>Mi Perfil</h2>
+<div class="perfil-page">
+  
+  <header class="perfil-header">
+    <h1 class="title">Perfil</h1>
+    <p class="subtitle">Gestiona tu cuenta y preferencias</p>
+  </header>
 
-    <div *ngIf="!editMode" class="perfil-info">
-      <p><strong>Nombre:</strong> {{ user.nombre }}</p>
-      <p><strong>Usuario:</strong> {{ user.usuario }}</p>
-      <p><strong>Distrito:</strong> {{ user.distrito }}</p>
-      <button mat-raised-button color="primary" (click)="goToChat()">Volver al chat</button>
-      <button mat-raised-button color="primary" (click)="enableEdit()">Editar perfil</button>
-      <button mat-raised-button color="primary" (click)="logout()">Cerrar sesión</button>
+  <main class="perfil-content">
+    
+    <div *ngIf="!editMode" class="perfil-card">
+      <h2 class="section-title">Información personal</h2>
+
+      <div class="user-info-display">
+        <div class="avatar-circle">
+          <span>{{ user.nombre ? user.nombre[0].toUpperCase() : '?' }}</span>
+        </div>
+        
+        <div class="user-details">
+          <p class="user-name">{{ user.nombre || 'Usuario Desconocido' }}</p>
+          <p class="user-location">{{ user.distrito || 'Ubicación Desconocida' }}, Lima</p>
+        </div>
+      </div>
+
+      <button 
+        class="action-button primary-btn" 
+        (click)="enableEdit()">
+        Editar perfil
+      </button>
+      
+      <button 
+        class="action-button secondary-btn" 
+        (click)="logout()">
+        Cerrar sesión
+      </button>
     </div>
 
-    <form *ngIf="editMode" (ngSubmit)="saveChanges()" class="perfil-form">
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="user.nombre" name="nombre" required>
-      </mat-form-field>
+    <form *ngIf="editMode" (ngSubmit)="saveChanges()" class="edit-form-card">
+      <h2 class="section-title">Editar Perfil</h2>
+      
+      <input 
+        id="nombre"
+        type="text" 
+        [(ngModel)]="user.nombre" 
+        name="nombre" 
+        placeholder="Escribe tu nombre completo"
+        required
+        (ngModelChange)="nombreInvalido = false">
+      
+      <div *ngIf="nombreInvalido" class="error-text">
+        Olvidó escribir su nombre.
+      </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Distrito</mat-label>
-        <input matInput [(ngModel)]="user.distrito" name="distrito" required>
-      </mat-form-field>
+      <select 
+        id="distrito"
+        [(ngModel)]="user.distrito" 
+        name="distrito" 
+        required
+        (ngModelChange)="distritoInvalido = false">
+        <option value="" disabled selected>Selecciona tu distrito</option>
+        <option *ngFor="let distrito of distritosLima" [value]="distrito">
+          {{ distrito }}
+        </option>
+      </select>
+      
+      <div *ngIf="distritoInvalido" class="error-text">
+        Seleccione un distrito.
+      </div>
 
-      <div class="buttons">
-        <button mat-raised-button color="accent" type="submit">Guardar</button>
-        <button mat-stroked-button color="warn" type="button" (click)="cancelEdit()">Cancelar</button>
+      <div class="buttons-edit">
+        <button 
+          type="submit" 
+          class="save-btn" 
+          [disabled]="!user.nombre || !user.distrito">
+          Guardar
+        </button>
+        
+        <button 
+          type="button" 
+          class="cancel-btn" 
+          (click)="cancelEdit()">
+          Cancelar
+        </button>
       </div>
     </form>
-  </div>
+
+  </main>
+  
+  <nav class="chat-nav">
+    <a (click)="goToInicio()" class="nav-item"> 
+      <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+      <span>Inicio</span>
+    </a>
+
+    <a (click)="goToCultivos()" class="nav-item">
+      <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+      <span>Cultivos</span>
+    </a>
+
+    <a (click)="goToAsistente()" class="nav-item">
+      <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+      <span>Asistente</span>
+    </a>
+
+    <a class="nav-item active"> 
+      <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+      <span>Perfil</span>
+    </a>
+  </nav>
+
 </div>

@@ -1,0 +1,31 @@
+<div class="login-wrapper">
+  <div class="login-container">
+    <img src="https://i.postimg.cc/Qd6zwQSh/icon-growia.png" alt="Growia Logo" class="login-logo" />
+    <h1 class="app-name">Growia</h1>
+    <p class="app-subtitle">Ingresa a la aplicación y descubre qué puedes cultivar</p>
+
+    <form (ngSubmit)="login()" class="login-form">
+      <input
+        type="text"
+        [(ngModel)]="usuario"
+        name="usuario"
+        placeholder="Usuario"
+        required
+        class="input-field"
+      />
+      <input
+        type="password"
+        [(ngModel)]="password"
+        name="password"
+        placeholder="Contraseña"
+        required
+        class="input-field"
+      />
+      <button type="submit" class="btn-primary">Ingresar</button>
+    </form>
+
+    <button class="btn-secondary" (click)="goToRegister()">Registrarse</button>
+
+    <p *ngIf="message" class="message">{{ message }}</p>
+  </div>
+</div>
