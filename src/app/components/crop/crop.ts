@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CropService } from '../../services/crop-service'; 
+import { CropService } from '../../services/crop-service';
 import { HttpErrorResponse, HttpClientModule } from '@angular/common/http';
 
 interface CropData {
@@ -12,31 +12,34 @@ interface CropData {
   tipo: string;
   ubicacion: string;
   etapa: string;
-  startdate: Date; 
+  startdate: Date;
 }
 
 @Component({
   selector: 'app-crop',
   standalone: true,
-  imports: [ 
-    CommonModule, 
-    FormsModule, 
-    RouterModule,
-    HttpClientModule 
-  ],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './crop.html',
   styleUrl: './crop.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [DatePipe] 
+  providers: [DatePipe],
 })
 export class Crop implements OnInit {
-  
-  newCrop: CropData = { id: 0, name: '', tipo: '', ubicacion: '', etapa: '', startdate: new Date() };
+  newCrop: CropData = {
+    id: 0,
+    name: '',
+    tipo: '',
+    ubicacion: '',
+    etapa: '',
+    startdate: new Date(),
+  };
   crops: CropData[] = [];
-  showForm: 'register' | 'edit' | 'list' | 'empty' = 'empty'; 
+  showForm: 'register' | 'edit' | 'list' | 'empty' = 'empty';
   cropToEdit: CropData | null = null;
-  
-  validationError: string = ''; 
+  showDeleteModal: boolean = false;
+  deleteCropId: number | null = null;
+
+  validationError: string = '';
 
   tiposDeCultivo: string[] = [
     'Hortalizas de hoja',
@@ -44,7 +47,7 @@ export class Crop implements OnInit {
     'Hierbas aromáticas',
     'Frutales pequeños',
     'Legumbres',
-    'Tubérculos'
+    'Tubérculos',
   ];
 
   ubicacionesUrbanas: string[] = [
@@ -54,16 +57,19 @@ export class Crop implements OnInit {
     'Macetas pequeñas',
     'Huerto vertical interior',
     'Invernadero pequeño',
-    'Recipientes reciclados'
+    'Recipientes reciclados',
   ];
 
-  constructor(private cropService: CropService, private router:Router, private datePipe: DatePipe) {}
+  constructor(
+    private cropService: CropService,
+    private router: Router,
+    private datePipe: DatePipe
+  ) {}
 
   ngOnInit(): void {
     this.getCrops();
   }
 
-  
   private validateCrop(crop: CropData): boolean {
     this.validationError = '';
 
@@ -93,24 +99,22 @@ export class Crop implements OnInit {
   getCrops(): void {
     this.cropService.obtenerCultivos().subscribe({
       next: (data) => {
-        this.crops = data.map(crop => ({
+        this.crops = data.map((crop) => ({
           ...crop,
-          startdate: new Date(crop.startdate) 
+          startdate: new Date(crop.startdate),
         }));
         this.showForm = this.crops.length > 0 ? 'list' : 'empty';
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error al obtener cultivos:', err);
-        this.showForm = 'empty'; 
-      }
+        this.showForm = 'empty';
+      },
     });
   }
 
-  
   addCrop(): void {
-    
     if (!this.validateCrop(this.newCrop)) {
-      return; 
+      return;
     }
 
     const payload = {
@@ -118,32 +122,30 @@ export class Crop implements OnInit {
       tipo: this.newCrop.tipo,
       ubicacion: this.newCrop.ubicacion,
       etapa: this.newCrop.etapa,
-      startdate: this.newCrop.startdate.toISOString().split('T')[0] 
+      startdate: this.newCrop.startdate.toISOString().split('T')[0],
     };
 
     this.cropService.registrarCultivo(payload as any).subscribe({
       next: () => {
         console.log('Cultivo registrado con éxito');
-        this.getCrops(); 
+        this.getCrops();
         this.cancelForm();
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error al registrar cultivo:', err);
         this.validationError = 'Error al registrar. Intente de nuevo.';
-      }
+      },
     });
   }
 
-  
   saveEdit(): void {
     if (this.cropToEdit) {
-      
       if (!this.validateCrop(this.cropToEdit)) {
-        return; 
+        return;
       }
-      
+
       const { id, ...payload } = this.cropToEdit;
-      
+
       (payload as any).startdate = this.cropToEdit.startdate.toISOString().split('T')[0];
 
       this.cropService.actualizarCultivo(id, payload).subscribe({
@@ -155,25 +157,35 @@ export class Crop implements OnInit {
         error: (err: HttpErrorResponse) => {
           console.error('Error al actualizar cultivo:', err);
           this.validationError = 'Error al actualizar. Intente de nuevo.';
-        }
+        },
       });
     }
   }
 
-  deleteCrop(id: number): void {
-    if (!confirm('¿Estás seguro de que quieres eliminar este cultivo?')) {
-      return;
-    }
+  confirmDelete(id: number): void {
+    this.deleteCropId = id;
+    this.showDeleteModal = true;
+  }
 
-    this.cropService.eliminarCultivo(id).subscribe({
+  deleteCrop(): void {
+    if (this.deleteCropId === null) return;
+
+    this.cropService.eliminarCultivo(this.deleteCropId).subscribe({
       next: () => {
         console.log('Cultivo eliminado con éxito');
         this.getCrops();
+        this.closeDeleteModal();
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error al eliminar cultivo:', err);
-      }
+        this.closeDeleteModal();
+      },
     });
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.deleteCropId = null;
   }
 
   onDateChange(event: string | null, target: 'new' | 'edit'): void {
@@ -184,39 +196,39 @@ export class Crop implements OnInit {
     } else if (target === 'edit' && this.cropToEdit) {
       this.cropToEdit.startdate = newDate;
     }
-    
-    this.validationError = ''; 
+
+    this.validationError = '';
   }
 
   startRegister(): void {
     this.newCrop = { id: 0, name: '', tipo: '', ubicacion: '', etapa: '', startdate: new Date() };
-    this.validationError = ''; 
+    this.validationError = '';
     this.showForm = 'register';
   }
 
   cancelForm(): void {
     this.showForm = this.crops.length > 0 ? 'list' : 'empty';
     this.cropToEdit = null;
-    this.validationError = ''; 
+    this.validationError = '';
   }
 
   enableEdit(crop: CropData): void {
-    this.cropToEdit = {...crop}; 
-    this.validationError = ''; 
+    this.cropToEdit = { ...crop };
+    this.validationError = '';
     this.showForm = 'edit';
   }
 
   goToCultivoDiario(id: number): void {
-    this.router.navigate(['/crop-updates', id]); 
+    this.router.navigate(['/crop-updates', id]);
   }
-  
+
   goToInicio(): void {
-    this.router.navigate(['/home']); 
+    this.router.navigate(['/home']);
   }
-  goToAsistente(): void { 
-    this.router.navigate(['/chat']); 
+  goToAsistente(): void {
+    this.router.navigate(['/chat']);
   }
-  goToPerfil(): void { 
-    this.router.navigate(['/perfil']); 
+  goToPerfil(): void {
+    this.router.navigate(['/perfil']);
   }
 }
