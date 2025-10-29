@@ -412,6 +412,152 @@
   transform: translateY(-1px);
 }
 
+/* Modal de eliminación */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(9, 10, 10, 0.54);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.delete-modal-container {
+  width: 100%;
+  max-width: 365px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-modal-content {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 25px 20px;
+  box-sizing: border-box;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.delete-modal-title {
+  line-height: 145%;
+  color: #020202;
+  margin: 0 0 15px 0;
+  text-align: left;
+}
+
+.delete-modal-separator {
+  width: 100%;
+  height: 0px;
+  border: 1px solid #F0F0F0;
+  margin: 0 0 15px 0;
+}
+
+.delete-modal-message {
+  font-style: normal;
+  font-weight: 400;
+  line-height: 145%;
+  color: #020202;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: right;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.delete-cancel-btn {
+  min-width: 100px;
+  height: 41px;
+  background: #E0E0E0;
+  border-radius: 6px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 145%;
+  color: #454343;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  flex: 1;
+  max-width: 120px;
+}
+
+.delete-confirm-btn {
+  min-width: 100px;
+  height: 41px;
+  background: #F44336;
+  border-radius: 6px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 145%;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  flex: 1;
+  max-width: 120px;
+}
+
+/* Para pantallas muy pequeñas (menos de 320px) */
+@media (max-width: 320px) {
+  .delete-modal-overlay {
+    padding: 15px;
+  }
+  
+  .delete-modal-content {
+    padding: 20px 15px;
+  }
+  
+  .delete-modal-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .delete-cancel-btn,
+  .delete-confirm-btn {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Para tablets y pantallas más grandes */
+@media (min-width: 768px) {
+  .delete-modal-container {
+    max-width: 400px;
+  }
+  
+  .delete-modal-content {
+    padding: 30px 25px;
+  }
+}
+
+/* Deshabilitar scroll del body cuando el modal está abierto */
+body.modal-open {
+  overflow: hidden;
+}
+
 
 @media (min-width: 1024px) {
   .chat-nav {

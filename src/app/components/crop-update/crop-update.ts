@@ -1,38 +1,38 @@
-
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core'; 
-import { ActivatedRoute, Router } from '@angular/router'; 
-import { CommonModule, DatePipe } from '@angular/common'; 
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CropUpdateService } from '../../services/crop-update-service';
 
-
 interface UpdateEntry {
-  id?: number; 
+  id?: number;
   crop_id: string;
   status: string;
   notes: string;
   image_url: string;
   date: Date;
-  editMode?: boolean; 
+  editMode?: boolean;
 }
 
 @Component({
   selector: 'app-crop-update',
-  imports: [ CommonModule, FormsModule, RouterModule ], 
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './crop-update.html',
   styleUrl: './crop-update.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 export class CropUpdate implements OnInit {
-
   cropId!: number;
   newUpdate: UpdateEntry = { crop_id: '', status: '', notes: '', image_url: '', date: new Date() };
   updateToEdit: UpdateEntry | null = null;
   updates: UpdateEntry[] = [];
-  showForm: 'list' | 'register' | 'edit' = 'list'; 
-  
+  showForm: 'list' | 'register' | 'edit' = 'list';
+  showDeleteModal: boolean = false;
+  deleteUpdateId: number | null = null;
+  deleteUpdateMessage: string = '';
+
   entryOptions: string[] = [
     'Riego',
     'Aplicación de fertilizante',
@@ -41,7 +41,7 @@ export class CropUpdate implements OnInit {
     'Observación General',
     'Cosecha',
     'Abono / Cambio de sustrato',
-    'Otra tipo de observación'
+    'Otra tipo de observación',
   ];
 
   constructor(
@@ -61,24 +61,23 @@ export class CropUpdate implements OnInit {
       next: (res) => {
         this.updates = res.map((update: any) => ({
           ...update,
-          date: new Date(update.date)
+          date: new Date(update.date),
         }));
 
-        if (this.updates.length > 0) { 
-            this.showForm = 'list';
+        if (this.updates.length > 0) {
+          this.showForm = 'list';
         } else {
-            this.showForm = 'register';
+          this.showForm = 'register';
         }
       },
       error: (err) => {
         console.error('Error al obtener actualizaciones:', err);
         this.updates = [];
         this.showForm = 'register';
-      }
+      },
     });
   }
 
-  
   handleSubmit(): void {
     if (this.showForm === 'register') {
       this.registrarActualizacion();
@@ -91,16 +90,22 @@ export class CropUpdate implements OnInit {
     if (!this.newUpdate.status.trim()) return;
 
     const payload = {
-        ...this.newUpdate,
-        date: this.newUpdate.date.toISOString().split('T')[0]
+      ...this.newUpdate,
+      date: this.newUpdate.date.toISOString().split('T')[0],
     };
 
     this.cropUpdateService.registrarActualizacion(payload as any).subscribe({
       next: () => {
-        this.newUpdate = { crop_id: this.cropId.toString(), status: '', notes: '', image_url: '', date: new Date() };
+        this.newUpdate = {
+          crop_id: this.cropId.toString(),
+          status: '',
+          notes: '',
+          image_url: '',
+          date: new Date(),
+        };
         this.obtenerActualizaciones();
       },
-      error: (err) => console.error('Error al registrar actualización:', err)
+      error: (err) => console.error('Error al registrar actualización:', err),
     });
   }
 
@@ -111,10 +116,10 @@ export class CropUpdate implements OnInit {
 
   saveEdit(): void {
     if (!this.updateToEdit || !this.updateToEdit.id) return;
-    
+
     const payload = {
       ...this.updateToEdit,
-      date: this.updateToEdit.date.toISOString().split('T')[0] 
+      date: this.updateToEdit.date.toISOString().split('T')[0],
     };
 
     this.cropUpdateService.actualizarActualizacion(this.updateToEdit.id, payload).subscribe({
@@ -122,20 +127,23 @@ export class CropUpdate implements OnInit {
         this.updateToEdit = null;
         this.obtenerActualizaciones();
       },
-      error: (err) => console.error('Error al actualizar actualización:', err)
+      error: (err) => console.error('Error al actualizar actualización:', err),
     });
   }
 
   cancelForm(): void {
-    this.newUpdate = { crop_id: this.cropId.toString(), status: '', notes: '', image_url: '', date: new Date() };
+    this.newUpdate = {
+      crop_id: this.cropId.toString(),
+      status: '',
+      notes: '',
+      image_url: '',
+      date: new Date(),
+    };
     this.updateToEdit = null;
-    
-    
+
     if (this.updates.length > 0) {
-      
       this.showForm = 'list';
     } else {
-      
       this.router.navigate(['/cultivos']);
     }
   }
@@ -150,23 +158,47 @@ export class CropUpdate implements OnInit {
     }
   }
 
-  deleteUpdate(id: number | undefined): void {
+  confirmDelete(id: number | undefined): void {
     if (!id) return;
-    if (confirm('¿Seguro que deseas eliminar esta actualización?')) {
-      this.cropUpdateService.eliminarActualizacion(id).subscribe({
-        next: () => this.obtenerActualizaciones(), 
-        error: (err) => console.error('Error al eliminar actualización:', err)
-      });
-    }
+
+    this.deleteUpdateId = id;
+    this.deleteUpdateMessage =
+      '¿Estás seguro de que quieres eliminar esta actualización? Esta acción no se puede deshacer.';
+    this.showDeleteModal = true;
+    // Prevenir scroll del body
+    document.body.classList.add('modal-open');
   }
-  
+
+  deleteUpdate(): void {
+    if (this.deleteUpdateId === null) return;
+
+    this.cropUpdateService.eliminarActualizacion(this.deleteUpdateId).subscribe({
+      next: () => {
+        console.log('Actualización eliminada con éxito');
+        this.obtenerActualizaciones();
+        this.closeDeleteModal();
+      },
+      error: (err) => {
+        console.error('Error al eliminar actualización:', err);
+        this.closeDeleteModal();
+      },
+    });
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.deleteUpdateId = null;
+    this.deleteUpdateMessage = '';
+    document.body.classList.remove('modal-open');
+  }
+
   goToInicio(): void {
-    this.router.navigate(['/home']); 
+    this.router.navigate(['/home']);
   }
-  goToAsistente(): void { 
-      this.router.navigate(['/chat']);
+  goToAsistente(): void {
+    this.router.navigate(['/chat']);
   }
-  goToPerfil(): void { 
-      this.router.navigate(['/perfil']);
+  goToPerfil(): void {
+    this.router.navigate(['/perfil']);
   }
 }
