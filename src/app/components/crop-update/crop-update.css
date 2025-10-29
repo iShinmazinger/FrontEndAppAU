@@ -9,7 +9,7 @@
 
 
 .crop-header {
- padding: 30px 20px 20px; 
+ padding: 25px 22px 20px;
  background-color: #fff;
 }
 
@@ -28,10 +28,9 @@ align-items: flex-start;
 padding: 0px;
 gap: 20px;
 width: 100%; 
-
 padding: 0 20px; 
 box-sizing: border-box;
-margin-bottom: 20px; 
+margin-bottom: 10px; 
 }
 
 .action-button { 
@@ -143,7 +142,7 @@ flex-grow: 0;
 }
 
 .cards-section {
-padding: 20px 20px 20px 20px; 
+padding: 0px 20px 20px 20px; 
 box-sizing: border-box; 
 }
 

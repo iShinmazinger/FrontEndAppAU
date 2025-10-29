@@ -3,12 +3,11 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f7f7f7;
   padding-bottom: 70px; 
 }
 
 .crop-header {
-  padding: 30px 20px 20px;
+  padding: 25px 22px 20px;
   background-color: #fff;
 }
 
@@ -113,17 +112,12 @@
   max-width: 100%;
   height: 45px;
   padding: 0 15px;
-
-  
   border: 1px solid #f0f0f0;
   border-radius: 10px; 
   background-color: #ffffff;
-
-  
   font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   color: #333;
-
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -251,14 +245,12 @@
   font-size: 0.9rem;
 }
 
-/* -------------------
-    VISTA DE LISTA (CARDS)
-    ------------------- */
 .cards-section {
   padding: 10px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  background: var(--blanco);
 }
 
 
