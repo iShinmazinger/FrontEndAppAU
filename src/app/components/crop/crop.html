@@ -18,10 +18,6 @@
     <h2 class="form-title green-title">Registrar cultivo</h2>
     <hr class="title-separator" />
 
-    <div *ngIf="validationError" class="error-box">
-      {{ validationError }}
-    </div>
-
     <form (ngSubmit)="addCrop()" class="cultivo-form">
       <label for="name">Nombre del cultivo*</label>
       <input
@@ -82,10 +78,19 @@
         required
         class="custom-input"
       />
-
+      <div *ngIf="appState.error" class="error-box">
+        {{ appState.error }}
+      </div>
       <div class="buttons-edit">
-        <button type="submit" class="action-button primary-btn">Registrar</button>
-        <button type="button" (click)="cancelForm()" class="action-button secondary-grey-btn">
+        <button type="submit" class="action-button primary-btn" [disabled]="appState.loading">
+          {{ appState.operation === 'creating' ? 'Registrando...' : 'Registrar' }}
+        </button>
+        <button
+          type="button"
+          (click)="cancelForm()"
+          class="action-button secondary-grey-btn"
+          [disabled]="appState.loading"
+        >
           Cancelar
         </button>
       </div>
@@ -98,10 +103,6 @@
   >
     <h2 class="form-title green-title">Editar cultivo</h2>
     <hr class="title-separator" />
-
-    <div *ngIf="validationError" class="error-box">
-      {{ validationError }}
-    </div>
 
     <form (ngSubmit)="saveEdit()" class="cultivo-form">
       <label for="editName">Nombre del cultivo*</label>
@@ -155,8 +156,15 @@
       </div>
 
       <div class="buttons-edit">
-        <button type="submit" class="action-button primary-btn">Editar</button>
-        <button type="button" (click)="cancelForm()" class="action-button secondary-grey-btn">
+        <button type="submit" class="action-button primary-btn" [disabled]="appState.loading">
+          {{ appState.operation === 'updating' ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+        <button
+          type="button"
+          (click)="cancelForm()"
+          class="action-button secondary-grey-btn"
+          [disabled]="appState.loading"
+        >
           Cancelar
         </button>
       </div>
@@ -164,25 +172,40 @@
   </div>
 
   <div *ngIf="showForm === 'list'" class="cards-section">
-    <button class="add-new-crop-btn action-button primary-btn" (click)="startRegister()">
+    <button
+      class="add-new-crop-btn action-button primary-btn"
+      (click)="startRegister()"
+      [disabled]="appState.loading"
+    >
       <iconify-icon
         icon="ic:baseline-add-circle-outline"
         width="20"
         height="20"
         style="margin-right: 5px"
       ></iconify-icon>
-      Registrar Nuevo Cultivo
+      {{ appState.loading ? 'Cargando...' : 'Registrar Nuevo Cultivo' }}
     </button>
+
+    <!-- Loading state -->
+    <div *ngIf="appState.operation === 'fetching'" class="loading-state">Cargando cultivos...</div>
 
     <div *ngFor="let crop of crops" class="crop-card-container">
       <div class="crop-card">
         <div class="card-header">
           <h3 class="crop-name">{{ crop.name }}</h3>
           <div class="header-actions">
-            <button class="icon-action-btn edit-icon" (click)="enableEdit(crop)">
+            <button
+              class="icon-action-btn edit-icon"
+              (click)="enableEdit(crop)"
+              [disabled]="appState.loading"
+            >
               <iconify-icon icon="fe:edit" width="20" height="20"></iconify-icon>
             </button>
-            <button class="icon-action-btn delete-icon" (click)="confirmDelete(crop.id)">
+            <button
+              class="icon-action-btn delete-icon"
+              (click)="confirmDelete(crop.id)"
+              [disabled]="appState.loading"
+            >
               <iconify-icon icon="mdi:trash-outline" width="22" height="22"></iconify-icon>
             </button>
           </div>
@@ -199,43 +222,59 @@
           <p class="detail-line full-row">Etapa de cultivo: {{ crop.etapa || 'N/A' }}</p>
         </div>
 
-        <button class="diario-btn primary-btn" (click)="goToCultivoDiario(crop.id)">Diario</button>
-      </div>
-    </div>
-  </div>
-  <nav class="chat-nav">
-    <a (click)="goToInicio()" class="nav-item">
-      <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
-      <span>Inicio</span>
-    </a>
-    <a class="nav-item active">
-      <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
-      <span>Cultivos</span>
-    </a>
-    <a (click)="goToAsistente()" class="nav-item">
-      <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
-      <span>Asistente</span>
-    </a>
-    <a (click)="goToPerfil()" class="nav-item">
-      <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
-      <span>Perfil</span>
-    </a>
-  </nav>
-  <!-- Eliminar -->
-  <div *ngIf="showDeleteModal" class="delete-modal-overlay">
-    <div class="delete-modal-container">
-      <div class="delete-modal-content">
-        <h3 class="delete-modal-title">Eliminar cultivo</h3>
-        <div class="delete-modal-separator"></div>
-        <p class="delete-modal-message">
-          ¿Estás seguro de que quieres eliminar este cultivo? Se perderán todos los registros del
-          journal. Esta acción no se puede deshacer.
-        </p>
-        <div class="delete-modal-buttons">
-          <button class="delete-cancel-btn" (click)="closeDeleteModal()">Cancelar</button>
-          <button class="delete-confirm-btn" (click)="deleteCrop()">Eliminar</button>
-        </div>
+        <button
+          class="diario-btn primary-btn"
+          (click)="goToCultivoDiario(crop.id)"
+          [disabled]="appState.loading"
+        >
+          Diario
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Modal de eliminación -->
+<div *ngIf="showDeleteModal" class="delete-modal-overlay">
+  <div class="delete-modal-container">
+    <div class="delete-modal-content">
+      <h3 class="delete-modal-title">Eliminar cultivo</h3>
+      <div class="delete-modal-separator"></div>
+      <p class="delete-modal-message">
+        ¿Estás seguro de que quieres eliminar este cultivo? Se perderán todos los registros del
+        journal. Esta acción no se puede deshacer.
+      </p>
+      <div class="delete-modal-buttons">
+        <button
+          class="delete-cancel-btn"
+          (click)="closeDeleteModal()"
+          [disabled]="appState.loading"
+        >
+          Cancelar
+        </button>
+        <button class="delete-confirm-btn" (click)="deleteCrop()" [disabled]="appState.loading">
+          {{ appState.operation === 'deleting' ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="chat-nav">
+  <a (click)="goToInicio()" class="nav-item">
+    <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
+    <span>Inicio</span>
+  </a>
+  <a class="nav-item active">
+    <iconify-icon icon="cil:leaf" width="24" height="24"></iconify-icon>
+    <span>Cultivos</span>
+  </a>
+  <a (click)="goToAsistente()" class="nav-item">
+    <iconify-icon icon="carbon:chat-bot" width="24" height="24"></iconify-icon>
+    <span>Asistente</span>
+  </a>
+  <a (click)="goToPerfil()" class="nav-item">
+    <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
+    <span>Perfil</span>
+  </a>
+</nav>

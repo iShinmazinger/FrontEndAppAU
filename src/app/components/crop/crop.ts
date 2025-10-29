@@ -15,6 +15,12 @@ interface CropData {
   startdate: Date;
 }
 
+interface AppState {
+  loading: boolean;
+  error: string | null;
+  operation: 'idle' | 'creating' | 'updating' | 'deleting' | 'fetching';
+}
+
 @Component({
   selector: 'app-crop',
   standalone: true,
@@ -25,39 +31,28 @@ interface CropData {
   providers: [DatePipe],
 })
 export class Crop implements OnInit {
-  newCrop: CropData = {
-    id: 0,
-    name: '',
-    tipo: '',
-    ubicacion: '',
-    etapa: '',
-    startdate: new Date(),
-  };
+  newCrop: CropData = this.getEmptyCrop();
   crops: CropData[] = [];
   showForm: 'register' | 'edit' | 'list' | 'empty' = 'empty';
   cropToEdit: CropData | null = null;
+  
+  appState: AppState = {
+    loading: false,
+    error: null,
+    operation: 'idle'
+  };
+  
   showDeleteModal: boolean = false;
   deleteCropId: number | null = null;
 
-  validationError: string = '';
-
-  tiposDeCultivo: string[] = [
-    'Hortalizas de hoja',
-    'Hortalizas de raíz',
-    'Hierbas aromáticas',
-    'Frutales pequeños',
-    'Legumbres',
-    'Tubérculos',
+  readonly tiposDeCultivo: string[] = [
+    'Hortalizas de hoja', 'Hortalizas de raíz', 'Hierbas aromáticas',
+    'Frutales pequeños', 'Legumbres', 'Tubérculos'
   ];
 
-  ubicacionesUrbanas: string[] = [
-    'Balcón/Terraza',
-    'Patio/Jardín trasero',
-    'Azotea',
-    'Macetas pequeñas',
-    'Huerto vertical interior',
-    'Invernadero pequeño',
-    'Recipientes reciclados',
+  readonly ubicacionesUrbanas: string[] = [
+    'Balcón/Terraza', 'Patio/Jardín trasero', 'Azotea', 'Macetas pequeñas',
+    'Huerto vertical interior', 'Invernadero pequeño', 'Recipientes reciclados'
   ];
 
   constructor(
@@ -70,33 +65,44 @@ export class Crop implements OnInit {
     this.getCrops();
   }
 
-  private validateCrop(crop: CropData): boolean {
-    this.validationError = '';
-
-    if (!crop.name || crop.name.trim() === '') {
-      this.validationError = 'El campo Nombre del cultivo es obligatorio.';
-      return false;
+  private validateCrop(crop: CropData): { isValid: boolean; error?: string } {
+    if (!crop.name?.trim()) {
+      return { isValid: false, error: 'El campo Nombre del cultivo es obligatorio.' };
     }
-    if (!crop.tipo || crop.tipo.trim() === '') {
-      this.validationError = 'Debe seleccionar un Tipo de cultivo.';
-      return false;
+    if (!crop.tipo?.trim()) {
+      return { isValid: false, error: 'Debe seleccionar un Tipo de cultivo.' };
     }
-    if (!crop.ubicacion || crop.ubicacion.trim() === '') {
-      this.validationError = 'Debe seleccionar una Ubicación.';
-      return false;
+    if (!crop.ubicacion?.trim()) {
+      return { isValid: false, error: 'Debe seleccionar una Ubicación.' };
     }
-    if (!crop.etapa || crop.etapa.trim() === '') {
-      this.validationError = 'Debe seleccionar una Etapa de crecimiento.';
-      return false;
+    if (!crop.etapa?.trim()) {
+      return { isValid: false, error: 'Debe seleccionar una Etapa de crecimiento.' };
     }
     if (!crop.startdate) {
-      this.validationError = 'Debe seleccionar una Fecha de inicio.';
-      return false;
+      return { isValid: false, error: 'Debe seleccionar una Fecha de inicio.' };
     }
-    return true;
+    if (crop.startdate > new Date()) {
+      return { isValid: false, error: 'La fecha de inicio no puede ser futura.' };
+    }
+    
+    return { isValid: true };
+  }
+
+  private setLoading(operation: AppState['operation']): void {
+    this.appState = { ...this.appState, loading: true, operation, error: null };
+  }
+
+  private setSuccess(): void {
+    this.appState = { loading: false, error: null, operation: 'idle' };
+  }
+
+  private setError(error: string): void {
+    this.appState = { loading: false, error, operation: 'idle' };
   }
 
   getCrops(): void {
+    this.setLoading('fetching');
+    
     this.cropService.obtenerCultivos().subscribe({
       next: (data) => {
         this.crops = data.map((crop) => ({
@@ -104,21 +110,30 @@ export class Crop implements OnInit {
           startdate: new Date(crop.startdate),
         }));
         this.showForm = this.crops.length > 0 ? 'list' : 'empty';
+        this.setSuccess();
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Error al obtener cultivos:', err);
+        const errorMessage = this.getErrorMessage(err, 'obtener los cultivos');
+        this.setError(errorMessage);
         this.showForm = 'empty';
       },
     });
   }
 
   addCrop(): void {
-    if (!this.validateCrop(this.newCrop)) {
+    if (this.appState.loading) {
+      return;
+    }
+    const validation = this.validateCrop(this.newCrop);
+    if (!validation.isValid) {
+      this.setError(validation.error!);
       return;
     }
 
+    this.setLoading('creating');
+
     const payload = {
-      name: this.newCrop.name,
+      name: this.newCrop.name.trim(),
       tipo: this.newCrop.tipo,
       ubicacion: this.newCrop.ubicacion,
       etapa: this.newCrop.etapa,
@@ -127,39 +142,44 @@ export class Crop implements OnInit {
 
     this.cropService.registrarCultivo(payload as any).subscribe({
       next: () => {
-        console.log('Cultivo registrado con éxito');
-        this.getCrops();
+        this.setSuccess();
+        this.getCrops(); 
         this.cancelForm();
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Error al registrar cultivo:', err);
-        this.validationError = 'Error al registrar. Intente de nuevo.';
+        const errorMessage = this.getErrorMessage(err, 'registrar el cultivo');
+        this.setError(errorMessage);
       },
     });
   }
 
   saveEdit(): void {
-    if (this.cropToEdit) {
-      if (!this.validateCrop(this.cropToEdit)) {
-        return;
-      }
-
-      const { id, ...payload } = this.cropToEdit;
-
-      (payload as any).startdate = this.cropToEdit.startdate.toISOString().split('T')[0];
-
-      this.cropService.actualizarCultivo(id, payload).subscribe({
-        next: () => {
-          console.log('Cultivo actualizado con éxito');
-          this.getCrops();
-          this.cancelForm();
-        },
-        error: (err: HttpErrorResponse) => {
-          console.error('Error al actualizar cultivo:', err);
-          this.validationError = 'Error al actualizar. Intente de nuevo.';
-        },
-      });
+    if (!this.cropToEdit || this.appState.loading) {
+      return;
     }
+
+    const validation = this.validateCrop(this.cropToEdit);
+    if (!validation.isValid) {
+      this.setError(validation.error!);
+      return;
+    }
+
+    this.setLoading('updating');
+
+    const { id, ...payload } = this.cropToEdit;
+    (payload as any).startdate = this.cropToEdit.startdate.toISOString().split('T')[0];
+
+    this.cropService.actualizarCultivo(id, payload).subscribe({
+      next: () => {
+        this.setSuccess();
+        this.getCrops();
+        this.cancelForm();
+      },
+      error: (err: HttpErrorResponse) => {
+        const errorMessage = this.getErrorMessage(err, 'actualizar el cultivo');
+        this.setError(errorMessage);
+      },
+    });
   }
 
   confirmDelete(id: number): void {
@@ -168,19 +188,49 @@ export class Crop implements OnInit {
   }
 
   deleteCrop(): void {
-    if (this.deleteCropId === null) return;
+    if (this.deleteCropId === null || this.appState.loading) {
+      return;
+    }
+
+    this.setLoading('deleting');
 
     this.cropService.eliminarCultivo(this.deleteCropId).subscribe({
       next: () => {
-        console.log('Cultivo eliminado con éxito');
+        this.setSuccess();
         this.getCrops();
         this.closeDeleteModal();
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Error al eliminar cultivo:', err);
+        const errorMessage = this.getErrorMessage(err, 'eliminar el cultivo');
+        this.setError(errorMessage);
         this.closeDeleteModal();
       },
     });
+  }
+
+  private getErrorMessage(error: HttpErrorResponse, action: string): string {
+    if (error.status === 0) {
+      return 'Error de conexión. Verifica tu internet e intenta nuevamente.';
+    } else if (error.status === 400) {
+      return `Datos inválidos para ${action}. Verifica la información.`;
+    } else if (error.status === 404) {
+      return `Recurso no encontrado al intentar ${action}.`;
+    } else if (error.status >= 500) {
+      return `Error del servidor al ${action}. Intenta más tarde.`;
+    } else {
+      return `Error inesperado al ${action}. Código: ${error.status}`;
+    }
+  }
+
+  private getEmptyCrop(): CropData {
+    return { 
+      id: 0, 
+      name: '', 
+      tipo: '', 
+      ubicacion: '', 
+      etapa: '', 
+      startdate: new Date() 
+    };
   }
 
   closeDeleteModal(): void {
@@ -197,24 +247,24 @@ export class Crop implements OnInit {
       this.cropToEdit.startdate = newDate;
     }
 
-    this.validationError = '';
+    this.appState.error = null;
   }
 
   startRegister(): void {
-    this.newCrop = { id: 0, name: '', tipo: '', ubicacion: '', etapa: '', startdate: new Date() };
-    this.validationError = '';
+    this.newCrop = this.getEmptyCrop();
+    this.appState.error = null;
     this.showForm = 'register';
   }
 
   cancelForm(): void {
     this.showForm = this.crops.length > 0 ? 'list' : 'empty';
     this.cropToEdit = null;
-    this.validationError = '';
+    this.appState.error = null;
   }
 
   enableEdit(crop: CropData): void {
     this.cropToEdit = { ...crop };
-    this.validationError = '';
+    this.appState.error = null;
     this.showForm = 'edit';
   }
 
@@ -222,13 +272,7 @@ export class Crop implements OnInit {
     this.router.navigate(['/crop-updates', id]);
   }
 
-  goToInicio(): void {
-    this.router.navigate(['/home']);
-  }
-  goToAsistente(): void {
-    this.router.navigate(['/chat']);
-  }
-  goToPerfil(): void {
-    this.router.navigate(['/perfil']);
-  }
+  goToInicio(): void { this.router.navigate(['/home']); }
+  goToAsistente(): void { this.router.navigate(['/chat']); }
+  goToPerfil(): void { this.router.navigate(['/perfil']); }
 }
