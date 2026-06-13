@@ -13,6 +13,7 @@ interface Message {
 interface Conversation {
   id: number;
   created: string;
+  displayId?: number;
 }
 
 @Component({
@@ -41,7 +42,19 @@ export class Chat implements OnInit {
 
   loadHistory(): void {
     this.http.get<{ conversations: Conversation[] }>(`${this.apiUrl}/history`).subscribe({
-      next: (res) => (this.conversations = res.conversations),
+      next: (res) => {
+      const conversations = res.conversations;
+      const sortedAsc = [...conversations].sort(
+        (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime()
+      );
+
+      conversations.forEach((conv) => {
+        const position = sortedAsc.findIndex((c) => c.id === conv.id);
+        conv.displayId = position + 1;
+      });
+
+      this.conversations = conversations;
+    },
       error: (err) => console.error('Error al obtener historial:', err),
     });
   }
@@ -81,6 +94,7 @@ export class Chat implements OnInit {
     this.http
       .post<{ reply: string; conversationId: number }>(`${this.apiUrl}/send`, {
         content: messageToSend,
+        conversationId: this.currentConversationId,
       })
       .subscribe({
         next: (res) => {

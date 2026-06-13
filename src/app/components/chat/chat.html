@@ -30,7 +30,7 @@
     <h3>Mis conversaciones</h3>
     <ul>
       <li *ngFor="let conv of conversations" (click)="openConversation(conv.id)">
-        Conversación #{{ conv.id }} <br />
+        Conversación #{{ conv.displayId }} <br />
         <small>{{ conv.created | date : 'short' }}</small>
       </li>
     </ul>

@@ -98,7 +98,7 @@
             id="date-input-edit"
             type="date"
             class="custom-input"
-            [ngModel]="updateToEdit!.date | date : 'yyyy-MM-dd'"
+            [ngModel]="updateToEdit!.date | date : 'yyyy-MM-dd' : 'UTC' "
             (ngModelChange)="onDateChange($event, 'edit')"
             name="dateEdit"
             required
@@ -124,7 +124,7 @@
   <div *ngIf="showForm === 'list'" class="cards-section">
     <div *ngFor="let update of updates">
       <div class="card-diary-crop">
-        <p class="date-diary-crop">{{ update.date | date : 'dd/MM/yyyy' }}</p>
+        <p class="date-diary-crop">{{ update.date | date : 'dd/MM/yyyy' : 'UTC' }}</p>
 
         <div class="tag-status">
           <span class="status-text">{{ update.status }}</span>
