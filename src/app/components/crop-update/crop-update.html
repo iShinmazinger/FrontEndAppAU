@@ -55,7 +55,7 @@
             id="date-input-new"
             type="date"
             class="custom-input"
-            [ngModel]="newUpdate.date | date : 'yyyy-MM-dd'"
+            [ngModel]="newUpdate.date | date : 'yyyy-MM-dd' : 'UTC'"
             (ngModelChange)="onDateChange($event, 'new')"
             name="date"
             required

@@ -7,7 +7,7 @@
   <div *ngIf="showForm === 'empty'" class="empty-state">
     <div class="add-crop-card" (click)="startRegister()">
       <div class="add-crop-icon">
-        <span>＋</span>
+        <span>+</span>
       </div>
       <p class="add-crop-title">Agregar nuevo cultivo</p>
       <p class="add-crop-subtitle">Empieza a cultivar desde aquí</p>
@@ -72,7 +72,7 @@
       <input
         id="startdate"
         type="date"
-        [ngModel]="newCrop.startdate | date : 'yyyy-MM-dd'"
+        [ngModel]="newCrop.startdate | date : 'yyyy-MM-dd' : 'UTC'"
         (ngModelChange)="onDateChange($event, 'new')"
         name="startdate"
         required
@@ -152,7 +152,7 @@
       </select>
 
       <div class="edit-date-display">
-        <strong>Fecha de inicio:</strong> {{ cropToEdit.startdate | date : 'dd/MM/yyyy' }}
+        <strong>Fecha de inicio:</strong> {{ cropToEdit.startdate | date : 'dd/MM/yyyy' : 'UTC' }}
       </div>
 
       <div class="buttons-edit">
