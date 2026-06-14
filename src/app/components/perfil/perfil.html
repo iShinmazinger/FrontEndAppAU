@@ -1,12 +1,10 @@
 <div class="perfil-page">
-  
   <header class="perfil-header">
     <h1 class="title">Perfil</h1>
     <p class="subtitle">Gestiona tu cuenta y preferencias</p>
   </header>
 
   <main class="perfil-content">
-    
     <div *ngIf="!editMode" class="perfil-card">
       <h2 class="section-title">Información personal</h2>
 
@@ -14,79 +12,78 @@
         <div class="avatar-circle">
           <span>{{ user.nombre ? user.nombre[0].toUpperCase() : '?' }}</span>
         </div>
-        
+
         <div class="user-details">
           <p class="user-name">{{ user.nombre || 'Usuario Desconocido' }}</p>
           <p class="user-location">{{ user.distrito || 'Ubicación Desconocida' }}, Lima</p>
         </div>
       </div>
 
-      <button 
-        class="action-button primary-btn" 
-        (click)="enableEdit()">
-        Editar perfil
-      </button>
-      
-      <button 
-        class="action-button secondary-btn" 
-        (click)="logout()">
-        Cerrar sesión
-      </button>
+      <button class="action-button primary-btn" (click)="enableEdit()">Editar perfil</button>
+
+      <button class="action-button secondary-btn" (click)="logout()">Cerrar sesión</button>
+
+      <div class="perfil-stats">
+        <div class="stat-card">
+          <p class="stat-title">Total de Cultivos</p>
+          <h2 class="stat-value green-text">{{ crops.length }}</h2>
+          <p class="stat-subtitle">Cultivos registrados</p>
+        </div>
+
+        <div class="stat-card">
+          <p class="stat-title">En crecimiento</p>
+          <h2 class="stat-value green-text">{{ cropsCrecimiento.length }}</h2>
+          <p class="stat-subtitle">Cultivos en etapa de crecimiento</p>
+        </div>
+      </div>
     </div>
 
     <form *ngIf="editMode" (ngSubmit)="saveChanges()" class="edit-form-card">
       <h2 class="section-title">Editar Perfil</h2>
-      
-      <input 
+
+      <input
         id="nombre"
-        type="text" 
-        [(ngModel)]="user.nombre" 
-        name="nombre" 
+        type="text"
+        [(ngModel)]="user.nombre"
+        name="nombre"
         placeholder="Escribe tu nombre completo"
         required
-        (ngModelChange)="nombreInvalido = false">
-      
-      <div *ngIf="nombreInvalido" class="error-text">
-        Olvidó escribir su nombre.
+        (ngModelChange)="nombreInvalido = !user.nombre || user.nombre.trim() === ''"
+      />
+
+      <!-- Incidencia 0001193 -->
+      <div *ngIf="nombreInvalido" class="alert-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        El nombre es obligatorio para guardar tu perfil.
       </div>
 
-      <select 
+      <select
         id="distrito"
-        [(ngModel)]="user.distrito" 
-        name="distrito" 
+        [(ngModel)]="user.distrito"
+        name="distrito"
         required
-        (ngModelChange)="distritoInvalido = false">
+        (ngModelChange)="distritoInvalido = false"
+      >
         <option value="" disabled selected>Selecciona tu distrito</option>
         <option *ngFor="let distrito of distritosLima" [value]="distrito">
           {{ distrito }}
         </option>
       </select>
-      
-      <div *ngIf="distritoInvalido" class="error-text">
-        Seleccione un distrito.
-      </div>
+
+      <div *ngIf="distritoInvalido" class="error-text">Seleccione un distrito.</div>
 
       <div class="buttons-edit">
-        <button 
-          type="submit" 
-          class="save-btn" 
-          [disabled]="!user.nombre || !user.distrito">
+        <button type="submit" class="save-btn" [disabled]="!user.nombre || !user.distrito">
           Guardar
         </button>
-        
-        <button 
-          type="button" 
-          class="cancel-btn" 
-          (click)="cancelEdit()">
-          Cancelar
-        </button>
+
+        <button type="button" class="cancel-btn" (click)="cancelEdit()">Cancelar</button>
       </div>
     </form>
-
   </main>
-  
+
   <nav class="chat-nav">
-    <a (click)="goToInicio()" class="nav-item"> 
+    <a (click)="goToInicio()" class="nav-item">
       <iconify-icon icon="streamline-plump:home-1" width="24" height="24"></iconify-icon>
       <span>Inicio</span>
     </a>
@@ -101,10 +98,9 @@
       <span>Asistente</span>
     </a>
 
-    <a class="nav-item active"> 
+    <a class="nav-item active">
       <iconify-icon icon="iconamoon:profile-light" width="24" height="24"></iconify-icon>
       <span>Perfil</span>
     </a>
   </nav>
-
 </div>
