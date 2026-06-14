@@ -6,20 +6,36 @@ import { AuthServiceTs } from '../../services/auth.service.ts';
 
 @Component({
   selector: 'app-login',
-  imports: [ CommonModule, FormsModule ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
-  standalone: true
+  standalone: true,
 })
 export class Login {
   usuario = '';
   password = '';
   message = '';
+  sessionMessage: string | null = null;
 
-  constructor(private AuthService: AuthServiceTs, private router: Router) {}
+  ngOnInit(): void {
+    if (localStorage.getItem('sessionExpired') === 'true') {
+      this.sessionMessage = 'Necesitas iniciar sesión para ver esta sección';
+      localStorage.removeItem('sessionExpired');
+    }
+  }
+
+  redirectToLogin(): void {
+    this.sessionMessage = null;
+    this.router.navigate(['/login']);
+  }
+
+  constructor(
+    private AuthService: AuthServiceTs,
+    private router: Router,
+  ) {}
 
   login() {
-    const userData = {usuario: this.usuario, password: this.password };
+    const userData = { usuario: this.usuario, password: this.password };
 
     this.AuthService.login(userData).subscribe({
       next: (res) => {
@@ -42,13 +58,12 @@ export class Login {
         console.log('Detalles del error:', {
           status: err.status,
           message: err.message,
-          error: err.error
+          error: err.error,
         });
-      }
+      },
     });
   }
   goToRegister() {
     this.router.navigate(['/register']);
   }
-
 }

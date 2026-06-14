@@ -72,7 +72,7 @@
       <input
         id="startdate"
         type="date"
-        [ngModel]="newCrop.startdate | date : 'yyyy-MM-dd' : 'UTC'"
+        [ngModel]="newCrop.startdate | date: 'yyyy-MM-dd' : 'UTC'"
         (ngModelChange)="onDateChange($event, 'new')"
         name="startdate"
         required
@@ -152,7 +152,7 @@
       </select>
 
       <div class="edit-date-display">
-        <strong>Fecha de inicio:</strong> {{ cropToEdit.startdate | date : 'dd/MM/yyyy' : 'UTC' }}
+        <strong>Fecha de inicio:</strong> {{ cropToEdit.startdate | date: 'dd/MM/yyyy' : 'UTC' }}
       </div>
 
       <div class="buttons-edit">
@@ -213,7 +213,7 @@
 
         <div class="card-details">
           <p class="detail-line">Iniciado</p>
-          <p class="detail-date">{{ crop.startdate | date : 'dd/MM/yyyy' : 'UTC' }}</p>
+          <p class="detail-date">{{ crop.startdate | date: 'dd/MM/yyyy' : 'UTC' }}</p>
 
           <div class="detail-separator"></div>
 

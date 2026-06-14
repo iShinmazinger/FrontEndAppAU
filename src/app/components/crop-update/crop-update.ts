@@ -47,7 +47,7 @@ export class CropUpdate implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private cropUpdateService: CropUpdateService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {

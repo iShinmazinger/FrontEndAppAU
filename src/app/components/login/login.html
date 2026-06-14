@@ -29,3 +29,16 @@
     <p *ngIf="message" class="message">{{ message }}</p>
   </div>
 </div>
+
+<div *ngIf="sessionMessage" class="session-modal">
+  <div class="session-content">
+    <img
+      src="https://i.postimg.cc/XGPr52vR/re-login.png"
+      alt="Icono sesión expirada"
+      class="session-icon-img"
+    />
+    <h2>Iniciar sesión</h2>
+    <p>Es necesario para ver esta sección</p>
+    <button class="session-btn" (click)="redirectToLogin()">Aceptar</button>
+  </div>
+</div>

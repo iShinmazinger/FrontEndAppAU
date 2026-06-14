@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CropService {
   private apiUrl = `${environment.apiUrl}/api/crops`;
@@ -14,7 +14,7 @@ export class CropService {
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     });
   }
 
@@ -22,21 +22,27 @@ export class CropService {
     return this.http.get<any[]>(this.apiUrl, { headers: this.getAuthHeaders() });
   }
 
-  registrarCultivo(cultivo: { name: string; tipo: string; ubicacion: string; etapa: string; startdate: Date }): Observable<any> {
+  registrarCultivo(cultivo: {
+    name: string;
+    tipo: string;
+    ubicacion: string;
+    etapa: string;
+    startdate: Date;
+  }): Observable<any> {
     return this.http.post(this.apiUrl, cultivo, { headers: this.getAuthHeaders() });
   }
 
   eliminarCultivo(id: number) {
-  return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
-}
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+  }
 
   actualizarCultivo(id: number, datos: any) {
-  return this.http.put(`${this.apiUrl}/${id}`, datos, { headers: this.getAuthHeaders() });
-}
+    return this.http.put(`${this.apiUrl}/${id}`, datos, { headers: this.getAuthHeaders() });
+  }
 
-getCropsCrecimiento(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/crecimiento`, {
-    headers: this.getAuthHeaders()
-  });
-}
+  getCropsCrecimiento(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/crecimiento`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
 }

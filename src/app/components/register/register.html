@@ -8,15 +8,37 @@
       <small *ngIf="submitted && !nombre" class="error-text">Ingresa tu nombre.</small>
 
       <!-- Usuario -->
-      <input type="text" name="usuario" [(ngModel)]="usuario" placeholder="Nombre de usuario" required />
+      <input
+        type="text"
+        name="usuario"
+        [(ngModel)]="usuario"
+        placeholder="Nombre de usuario"
+        required
+      />
       <small *ngIf="submitted && !usuario" class="error-text">Ingresa un nombre de usuario.</small>
 
       <!-- Correo -->
-      <input type="email" name="email" [(ngModel)]="email" placeholder="Correo electrónico" required email />
-      <small *ngIf="submitted && !isValidEmail(email)" class="error-text">Ingresa un correo válido.</small>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        placeholder="Correo electrónico"
+        required
+        email
+      />
+      <small *ngIf="submitted && !isValidEmail(email)" class="error-text"
+        >Ingresa un correo válido.</small
+      >
 
       <!-- Contraseña -->
-      <input type="password" name="password" [(ngModel)]="password" placeholder="Contraseña" required minlength="6" />
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        placeholder="Contraseña"
+        required
+        minlength="6"
+      />
       <small *ngIf="submitted && !isValidPassword(password)" class="error-text">
         La contraseña debe tener al menos 6 caracteres.
       </small>

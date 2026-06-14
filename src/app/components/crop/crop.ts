@@ -35,30 +35,39 @@ export class Crop implements OnInit {
   crops: CropData[] = [];
   showForm: 'register' | 'edit' | 'list' | 'empty' = 'empty';
   cropToEdit: CropData | null = null;
-  
+
   appState: AppState = {
     loading: false,
     error: null,
-    operation: 'idle'
+    operation: 'idle',
   };
-  
+
   showDeleteModal: boolean = false;
   deleteCropId: number | null = null;
 
   readonly tiposDeCultivo: string[] = [
-    'Hortalizas de hoja', 'Hortalizas de raíz', 'Hierbas aromáticas',
-    'Frutales pequeños', 'Legumbres', 'Tubérculos'
+    'Hortalizas de hoja',
+    'Hortalizas de raíz',
+    'Hierbas aromáticas',
+    'Frutales pequeños',
+    'Legumbres',
+    'Tubérculos',
   ];
 
   readonly ubicacionesUrbanas: string[] = [
-    'Balcón/Terraza', 'Patio/Jardín trasero', 'Azotea', 'Macetas pequeñas',
-    'Huerto vertical interior', 'Invernadero pequeño', 'Recipientes reciclados'
+    'Balcón/Terraza',
+    'Patio/Jardín trasero',
+    'Azotea',
+    'Macetas pequeñas',
+    'Huerto vertical interior',
+    'Invernadero pequeño',
+    'Recipientes reciclados',
   ];
 
   constructor(
     private cropService: CropService,
     private router: Router,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
   ) {}
 
   ngOnInit(): void {
@@ -84,7 +93,7 @@ export class Crop implements OnInit {
     if (crop.startdate > new Date()) {
       return { isValid: false, error: 'La fecha de inicio no puede ser futura.' };
     }
-    
+
     return { isValid: true };
   }
 
@@ -102,7 +111,7 @@ export class Crop implements OnInit {
 
   getCrops(): void {
     this.setLoading('fetching');
-    
+
     this.cropService.obtenerCultivos().subscribe({
       next: (data) => {
         this.crops = data.map((crop) => ({
@@ -143,7 +152,7 @@ export class Crop implements OnInit {
     this.cropService.registrarCultivo(payload as any).subscribe({
       next: () => {
         this.setSuccess();
-        this.getCrops(); 
+        this.getCrops();
         this.cancelForm();
       },
       error: (err: HttpErrorResponse) => {
@@ -223,13 +232,13 @@ export class Crop implements OnInit {
   }
 
   private getEmptyCrop(): CropData {
-    return { 
-      id: 0, 
-      name: '', 
-      tipo: '', 
-      ubicacion: '', 
-      etapa: '', 
-      startdate: new Date() 
+    return {
+      id: 0,
+      name: '',
+      tipo: '',
+      ubicacion: '',
+      etapa: '',
+      startdate: new Date(),
     };
   }
 
@@ -272,7 +281,13 @@ export class Crop implements OnInit {
     this.router.navigate(['/crop-updates', id]);
   }
 
-  goToInicio(): void { this.router.navigate(['/home']); }
-  goToAsistente(): void { this.router.navigate(['/chat']); }
-  goToPerfil(): void { this.router.navigate(['/perfil']); }
+  goToInicio(): void {
+    this.router.navigate(['/home']);
+  }
+  goToAsistente(): void {
+    this.router.navigate(['/chat']);
+  }
+  goToPerfil(): void {
+    this.router.navigate(['/perfil']);
+  }
 }
